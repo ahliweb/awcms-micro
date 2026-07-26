@@ -697,59 +697,59 @@ msgstr ""
 msgid "admin.blog.dashboard.total_posts_label"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:112
+#: src/pages/admin/blog/internal-tag-links.astro:128
 msgid "admin.blog.internal_tag_links.deployment_enabled"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:108
+#: src/pages/admin/blog/internal-tag-links.astro:124
 msgid "admin.blog.internal_tag_links.deployment_hint"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:106
+#: src/pages/admin/blog/internal-tag-links.astro:122
 msgid "admin.blog.internal_tag_links.deployment_legend"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:195
+#: src/pages/admin/blog/internal-tag-links.astro:211
 msgid "admin.blog.internal_tag_links.disabled_tags_hint"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:140
+#: src/pages/admin/blog/internal-tag-links.astro:156
 msgid "admin.blog.internal_tag_links.exclude_headings"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:168
+#: src/pages/admin/blog/internal-tag-links.astro:184
 msgid "admin.blog.internal_tag_links.field_case_insensitive"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:172
+#: src/pages/admin/blog/internal-tag-links.astro:188
 msgid "admin.blog.internal_tag_links.field_disabled_tags"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:160
+#: src/pages/admin/blog/internal-tag-links.astro:176
 msgid "admin.blog.internal_tag_links.field_enabled"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:131
+#: src/pages/admin/blog/internal-tag-links.astro:147
 msgid "admin.blog.internal_tag_links.link_first_occurrence_only"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:118
+#: src/pages/admin/blog/internal-tag-links.astro:134
 msgid "admin.blog.internal_tag_links.max_per_post"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:122
+#: src/pages/admin/blog/internal-tag-links.astro:138
 msgid "admin.blog.internal_tag_links.max_per_tag"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:126
+#: src/pages/admin/blog/internal-tag-links.astro:142
 msgid "admin.blog.internal_tag_links.min_term_length"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:176
+#: src/pages/admin/blog/internal-tag-links.astro:192
 msgid "admin.blog.internal_tag_links.no_tags"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:201
+#: src/pages/admin/blog/internal-tag-links.astro:217
 msgid "admin.blog.internal_tag_links.save_button"
 msgstr ""
 
@@ -757,11 +757,11 @@ msgstr ""
 msgid "admin.blog.internal_tag_links.save_success"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:151
+#: src/pages/admin/blog/internal-tag-links.astro:167
 msgid "admin.blog.internal_tag_links.tenant_legend"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:74
+#: src/pages/admin/blog/internal-tag-links.astro:90
 msgid "admin.blog.internal_tag_links.title"
 msgstr ""
 
@@ -1369,63 +1369,63 @@ msgstr ""
 msgid "admin.blog.posts.updated_column"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:225
+#: src/pages/admin/blog/settings.astro:245
 msgid "admin.blog.settings.checklist_policy_hint"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:138
+#: src/pages/admin/blog/settings.astro:158
 msgid "admin.blog.settings.field_blog_description"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:128
+#: src/pages/admin/blog/settings.astro:148
 msgid "admin.blog.settings.field_blog_title"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:212
+#: src/pages/admin/blog/settings.astro:232
 msgid "admin.blog.settings.field_checklist_policy"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:171
+#: src/pages/admin/blog/settings.astro:191
 msgid "admin.blog.settings.field_default_locale"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:180
+#: src/pages/admin/blog/settings.astro:200
 msgid "admin.blog.settings.field_default_visibility"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:144
+#: src/pages/admin/blog/settings.astro:164
 msgid "admin.blog.settings.field_posts_per_page"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:160
+#: src/pages/admin/blog/settings.astro:180
 msgid "admin.blog.settings.field_rss_enabled"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:202
+#: src/pages/admin/blog/settings.astro:222
 msgid "admin.blog.settings.field_seo_default_description"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:193
+#: src/pages/admin/blog/settings.astro:213
 msgid "admin.blog.settings.field_seo_default_title"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:168
+#: src/pages/admin/blog/settings.astro:188
 msgid "admin.blog.settings.field_sitemap_enabled"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:247
+#: src/pages/admin/blog/settings.astro:267
 msgid "admin.blog.settings.field_social_preview_content_image_fallback_enabled"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:229
+#: src/pages/admin/blog/settings.astro:249
 msgid "admin.blog.settings.field_social_preview_fallback_image"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:272
+#: src/pages/admin/blog/settings.astro:292
 msgid "admin.blog.settings.field_theme_mode"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:124
+#: src/pages/admin/blog/settings.astro:144
 msgid "admin.blog.settings.general_legend"
 msgstr ""
 
@@ -1433,7 +1433,7 @@ msgstr ""
 msgid "admin.blog.settings.invalid_checklist_policy_json"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:254
+#: src/pages/admin/blog/settings.astro:274
 msgid "admin.blog.settings.save_button"
 msgstr ""
 
@@ -1441,34 +1441,34 @@ msgstr ""
 msgid "admin.blog.settings.save_success"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:236
+#: src/pages/admin/blog/settings.astro:256
 msgid "admin.blog.settings.social_preview_fallback_image_hint"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:267
+#: src/pages/admin/blog/settings.astro:287
 msgid "admin.blog.settings.theme_inherited_note"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:263
+#: src/pages/admin/blog/settings.astro:283
 msgid "admin.blog.settings.theme_legend"
 msgstr ""
 
 #. dynamic key family "admin.blog.settings.theme_mode_" — concrete suffix from src/modules/blog-content/domain/theme-policy.ts BLOG_THEME_MODES (see DYNAMIC_KEY_FAMILIES, scripts/i18n-extract.ts)
-#: src/pages/admin/blog/settings.astro:276
+#: src/pages/admin/blog/settings.astro:296
 msgid "admin.blog.settings.theme_mode_dark"
 msgstr ""
 
 #. dynamic key family "admin.blog.settings.theme_mode_" — concrete suffix from src/modules/blog-content/domain/theme-policy.ts BLOG_THEME_MODES (see DYNAMIC_KEY_FAMILIES, scripts/i18n-extract.ts)
-#: src/pages/admin/blog/settings.astro:276
+#: src/pages/admin/blog/settings.astro:296
 msgid "admin.blog.settings.theme_mode_light"
 msgstr ""
 
 #. dynamic key family "admin.blog.settings.theme_mode_" — concrete suffix from src/modules/blog-content/domain/theme-policy.ts BLOG_THEME_MODES (see DYNAMIC_KEY_FAMILIES, scripts/i18n-extract.ts)
-#: src/pages/admin/blog/settings.astro:276
+#: src/pages/admin/blog/settings.astro:296
 msgid "admin.blog.settings.theme_mode_system"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:266
+#: src/pages/admin/blog/settings.astro:286
 msgid "admin.blog.settings.theme_override_note"
 msgstr ""
 
@@ -1476,7 +1476,7 @@ msgstr ""
 msgid "admin.blog.settings.theme_save_success"
 msgstr ""
 
-#: src/pages/admin/blog/settings.astro:91
+#: src/pages/admin/blog/settings.astro:111
 msgid "admin.blog.settings.title"
 msgstr ""
 
@@ -2173,99 +2173,99 @@ msgstr ""
 msgid "admin.dashboard.total_decision_log_label"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:82
+#: src/pages/admin/examples/wizard.astro:98
 msgid "admin.examples.wizard.draft_resumed_notice"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:81
+#: src/pages/admin/examples/wizard.astro:97
 msgid "admin.examples.wizard.draft_save_error"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:76
+#: src/pages/admin/examples/wizard.astro:92
 msgid "admin.examples.wizard.error_summary_heading"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:132
+#: src/pages/admin/examples/wizard.astro:148
 msgid "admin.examples.wizard.field_category_label"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:136
+#: src/pages/admin/examples/wizard.astro:152
 msgid "admin.examples.wizard.field_category_option_general"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:142
+#: src/pages/admin/examples/wizard.astro:158
 msgid "admin.examples.wizard.field_category_option_misc"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:139
+#: src/pages/admin/examples/wizard.astro:155
 msgid "admin.examples.wizard.field_category_option_reference"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:161
+#: src/pages/admin/examples/wizard.astro:177
 msgid "admin.examples.wizard.field_notes_label"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:128
+#: src/pages/admin/examples/wizard.astro:144
 msgid "admin.examples.wizard.field_title_label"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:94
+#: src/pages/admin/examples/wizard.astro:110
 msgid "admin.examples.wizard.intro"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:92
+#: src/pages/admin/examples/wizard.astro:108
 msgid "admin.examples.wizard.nav_title"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:123
+#: src/pages/admin/examples/wizard.astro:139
 msgid "admin.examples.wizard.step_basic_description"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:45
+#: src/pages/admin/examples/wizard.astro:51
 msgid "admin.examples.wizard.step_basic_title"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:74
+#: src/pages/admin/examples/wizard.astro:90
 msgid "admin.examples.wizard.step_completed"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:73
+#: src/pages/admin/examples/wizard.astro:89
 msgid "admin.examples.wizard.step_current"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:157
+#: src/pages/admin/examples/wizard.astro:173
 msgid "admin.examples.wizard.step_details_description"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:46
+#: src/pages/admin/examples/wizard.astro:56
 msgid "admin.examples.wizard.step_details_title"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:75
+#: src/pages/admin/examples/wizard.astro:91
 msgid "admin.examples.wizard.step_pending"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:175
+#: src/pages/admin/examples/wizard.astro:191
 msgid "admin.examples.wizard.step_review_description"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:47
+#: src/pages/admin/examples/wizard.astro:61
 msgid "admin.examples.wizard.step_review_title"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:72
+#: src/pages/admin/examples/wizard.astro:88
 msgid "admin.examples.wizard.stepper_label"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:80
+#: src/pages/admin/examples/wizard.astro:96
 msgid "admin.examples.wizard.submit_success_message"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:78
+#: src/pages/admin/examples/wizard.astro:94
 msgid "admin.examples.wizard.validation_category_required"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:77
+#: src/pages/admin/examples/wizard.astro:93
 msgid "admin.examples.wizard.validation_title_required"
 msgstr ""
 
@@ -2444,15 +2444,15 @@ msgstr ""
 msgid "admin.layout.version_label"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:195
+#: src/pages/admin/media/index.astro:201
 msgid "admin.media.access_denied_body"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:194
+#: src/pages/admin/media/index.astro:200
 msgid "admin.media.access_denied_title"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:326
+#: src/pages/admin/media/index.astro:332
 msgid "admin.media.attach_button"
 msgstr ""
 
@@ -2472,7 +2472,7 @@ msgstr ""
 msgid "admin.media.copy_failed"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:312
+#: src/pages/admin/media/index.astro:318
 msgid "admin.media.copy_id"
 msgstr ""
 
@@ -2480,7 +2480,7 @@ msgstr ""
 msgid "admin.media.copy_success"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:346
+#: src/pages/admin/media/index.astro:352
 msgid "admin.media.delete_button"
 msgstr ""
 
@@ -2496,7 +2496,7 @@ msgstr ""
 msgid "admin.media.delete_success"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:337
+#: src/pages/admin/media/index.astro:343
 msgid "admin.media.detach_button"
 msgstr ""
 
@@ -2508,39 +2508,39 @@ msgstr ""
 msgid "admin.media.detach_success"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:224
+#: src/pages/admin/media/index.astro:230
 msgid "admin.media.filter_any"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:250
+#: src/pages/admin/media/index.astro:256
 msgid "admin.media.filter_include_deleted"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:233
+#: src/pages/admin/media/index.astro:239
 msgid "admin.media.filter_owner_type"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:222
+#: src/pages/admin/media/index.astro:228
 msgid "admin.media.filter_status"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:252
+#: src/pages/admin/media/index.astro:258
 msgid "admin.media.filter_submit"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:256
+#: src/pages/admin/media/index.astro:262
 msgid "admin.media.no_objects"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:304
+#: src/pages/admin/media/index.astro:310
 msgid "admin.media.object_id"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:294
+#: src/pages/admin/media/index.astro:300
 msgid "admin.media.owned_by"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:364
+#: src/pages/admin/media/index.astro:370
 msgid "admin.media.purge_button"
 msgstr ""
 
@@ -2552,7 +2552,7 @@ msgstr ""
 msgid "admin.media.purge_success"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:355
+#: src/pages/admin/media/index.astro:361
 msgid "admin.media.restore_button"
 msgstr ""
 
@@ -2564,11 +2564,11 @@ msgstr ""
 msgid "admin.media.restore_success"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:280
+#: src/pages/admin/media/index.astro:286
 msgid "admin.media.status_deleted"
 msgstr ""
 
-#: src/pages/admin/media/index.astro:189
+#: src/pages/admin/media/index.astro:195
 msgid "admin.media.title"
 msgstr ""
 
@@ -3224,15 +3224,15 @@ msgstr ""
 msgid "admin.profile.verification_verified"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:151
+#: src/pages/admin/profile-identity/[id].astro:178
 msgid "admin.profile_identity.access_denied_body"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:150
+#: src/pages/admin/profile-identity/[id].astro:177
 msgid "admin.profile_identity.access_denied_title"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:249
+#: src/pages/admin/profile-identity/[id].astro:276
 msgid "admin.profile_identity.detail.add_button"
 msgstr ""
 
@@ -3244,15 +3244,15 @@ msgstr ""
 msgid "admin.profile_identity.detail.address_deleted"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:283
+#: src/pages/admin/profile-identity/[id].astro:310
 msgid "admin.profile_identity.detail.address_line_placeholder"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:256
+#: src/pages/admin/profile-identity/[id].astro:283
 msgid "admin.profile_identity.detail.addresses_title"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:193
+#: src/pages/admin/profile-identity/[id].astro:220
 msgid "admin.profile_identity.detail.archive_button"
 msgstr ""
 
@@ -3272,15 +3272,15 @@ msgstr ""
 msgid "admin.profile_identity.detail.channel_deleted"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:302
+#: src/pages/admin/profile-identity/[id].astro:329
 msgid "admin.profile_identity.detail.channels_title"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:434
+#: src/pages/admin/profile-identity/[id].astro:461
 msgid "admin.profile_identity.detail.confirm_duplicate_button"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:222
+#: src/pages/admin/profile-identity/[id].astro:249
 msgid "admin.profile_identity.detail.delete_button"
 msgstr ""
 
@@ -3288,15 +3288,15 @@ msgstr ""
 msgid "admin.profile_identity.detail.delete_reason_prompt"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:407
+#: src/pages/admin/profile-identity/[id].astro:434
 msgid "admin.profile_identity.detail.duplicate_candidates_title"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:368
+#: src/pages/admin/profile-identity/[id].astro:395
 msgid "admin.profile_identity.detail.end_relationship_button"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:396
+#: src/pages/admin/profile-identity/[id].astro:423
 msgid "admin.profile_identity.detail.field_is_representative"
 msgstr ""
 
@@ -3308,15 +3308,15 @@ msgstr ""
 msgid "admin.profile_identity.detail.identifier_deleted"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:244
+#: src/pages/admin/profile-identity/[id].astro:271
 msgid "admin.profile_identity.detail.identifier_value_placeholder"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:205
+#: src/pages/admin/profile-identity/[id].astro:232
 msgid "admin.profile_identity.detail.identifiers_title"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:472
+#: src/pages/admin/profile-identity/[id].astro:499
 msgid "admin.profile_identity.detail.merge_reason_placeholder"
 msgstr ""
 
@@ -3324,19 +3324,19 @@ msgstr ""
 msgid "admin.profile_identity.detail.merge_request_created"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:208
+#: src/pages/admin/profile-identity/[id].astro:235
 msgid "admin.profile_identity.detail.no_records"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:444
+#: src/pages/admin/profile-identity/[id].astro:471
 msgid "admin.profile_identity.detail.not_duplicate_button"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:171
+#: src/pages/admin/profile-identity/[id].astro:198
 msgid "admin.profile_identity.detail.not_found"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:383
+#: src/pages/admin/profile-identity/[id].astro:410
 msgid "admin.profile_identity.detail.other_profile_id_placeholder"
 msgstr ""
 
@@ -3348,11 +3348,11 @@ msgstr ""
 msgid "admin.profile_identity.detail.relationship_ended"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:347
+#: src/pages/admin/profile-identity/[id].astro:374
 msgid "admin.profile_identity.detail.relationships_title"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:198
+#: src/pages/admin/profile-identity/[id].astro:225
 msgid "admin.profile_identity.detail.restore_button"
 msgstr ""
 
@@ -3368,7 +3368,7 @@ msgstr ""
 msgid "admin.profile_identity.detail.review_success"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:411
+#: src/pages/admin/profile-identity/[id].astro:438
 msgid "admin.profile_identity.detail.scan_button"
 msgstr ""
 
@@ -3376,19 +3376,19 @@ msgstr ""
 msgid "admin.profile_identity.detail.scan_success"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:477
+#: src/pages/admin/profile-identity/[id].astro:504
 msgid "admin.profile_identity.detail.start_merge_button"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:458
+#: src/pages/admin/profile-identity/[id].astro:485
 msgid "admin.profile_identity.detail.start_merge_title"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:464
+#: src/pages/admin/profile-identity/[id].astro:491
 msgid "admin.profile_identity.detail.survivor_profile_id_placeholder"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:144
+#: src/pages/admin/profile-identity/[id].astro:171
 msgid "admin.profile_identity.detail.title"
 msgstr ""
 
@@ -3396,7 +3396,7 @@ msgstr ""
 msgid "admin.profile_identity.detail.update_success"
 msgstr ""
 
-#: src/pages/admin/profile-identity/[id].astro:482
+#: src/pages/admin/profile-identity/[id].astro:509
 msgid "admin.profile_identity.detail.view_merge_requests_link"
 msgstr ""
 
@@ -5357,7 +5357,7 @@ msgstr ""
 msgid "comments.public.subscribe_label"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:149
+#: src/pages/admin/examples/wizard.astro:165
 msgid "common.back"
 msgstr ""
 
@@ -5385,7 +5385,7 @@ msgstr ""
 msgid "common.network_error"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:150
+#: src/pages/admin/examples/wizard.astro:166
 msgid "common.next"
 msgstr ""
 
@@ -5393,7 +5393,7 @@ msgstr ""
 msgid "common.next_page"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:114
+#: src/pages/admin/blog/internal-tag-links.astro:130
 msgid "common.no"
 msgstr ""
 
@@ -5421,11 +5421,11 @@ msgstr ""
 msgid "common.status_inactive"
 msgstr ""
 
-#: src/pages/admin/examples/wizard.astro:191
+#: src/pages/admin/examples/wizard.astro:207
 msgid "common.submit"
 msgstr ""
 
-#: src/pages/admin/blog/internal-tag-links.astro:114
+#: src/pages/admin/blog/internal-tag-links.astro:130
 msgid "common.yes"
 msgstr ""
 

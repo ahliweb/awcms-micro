@@ -25,6 +25,7 @@
  * `tests/unit/security-admin-client.test.ts`.
  */
 import {
+  asyncHandler,
   lockElement,
   readClientStrings,
   reloadAfterDelay,
@@ -107,9 +108,9 @@ function trimmedField(formData: FormData, name: string): string {
 export function initSecurityAdmin(
   strings: SecurityStrings = readClientStrings<SecurityStrings>()
 ): void {
-  document
-    .getElementById("policy-form")
-    ?.addEventListener("submit", async (event) => {
+  document.getElementById("policy-form")?.addEventListener(
+    "submit",
+    asyncHandler(async (event) => {
       event.preventDefault();
       const form = event.target as HTMLFormElement;
       const button = document.getElementById(
@@ -155,11 +156,12 @@ export function initSecurityAdmin(
       } finally {
         unlock?.();
       }
-    });
+    })
+  );
 
-  document
-    .getElementById("create-provider-form")
-    ?.addEventListener("submit", async (event) => {
+  document.getElementById("create-provider-form")?.addEventListener(
+    "submit",
+    asyncHandler(async (event) => {
       event.preventDefault();
       const form = event.target as HTMLFormElement;
       const button = submitButtonOf(form);
@@ -201,76 +203,85 @@ export function initSecurityAdmin(
       } finally {
         unlock?.();
       }
-    });
+    })
+  );
 
   document.querySelectorAll(".edit-provider-form").forEach((formEl) => {
-    formEl.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const form = event.target as HTMLFormElement;
-      const button = submitButtonOf(form);
-      if (button?.disabled) return;
+    formEl.addEventListener(
+      "submit",
+      asyncHandler(async (event) => {
+        event.preventDefault();
+        const form = event.target as HTMLFormElement;
+        const button = submitButtonOf(form);
+        if (button?.disabled) return;
 
-      const providerId = form.dataset.providerId!;
-      const formData = new FormData(form);
-      const clientSecret = trimmedField(formData, "clientSecret");
-      const clientSecretEnvVar = trimmedField(formData, "clientSecretEnvVar");
+        const providerId = form.dataset.providerId!;
+        const formData = new FormData(form);
+        const clientSecret = trimmedField(formData, "clientSecret");
+        const clientSecretEnvVar = trimmedField(formData, "clientSecretEnvVar");
 
-      if (!isEditProviderSecretChoiceValid(clientSecret, clientSecretEnvVar)) {
-        showBanner(BANNER_ID, strings.invalidSecretChoice, "error");
-        return;
-      }
-
-      const unlock = button ? lockElement(button, strings.pleaseWait) : null;
-      try {
-        const body: Record<string, unknown> = {
-          displayName: formData.get("displayName"),
-          issuerUrl: formData.get("issuerUrl"),
-          clientId: formData.get("clientId"),
-          scopes: formData.get("scopes"),
-          allowedEmailDomains: parseDelimitedList(
-            formData.get("allowedEmailDomains")
-          ),
-          enabled: formData.get("enabled") === "on"
-        };
-        if (clientSecret.length > 0) body.clientSecret = clientSecret;
-        if (clientSecretEnvVar.length > 0) {
-          body.clientSecretEnvVar = clientSecretEnvVar;
+        if (
+          !isEditProviderSecretChoiceValid(clientSecret, clientSecretEnvVar)
+        ) {
+          showBanner(BANNER_ID, strings.invalidSecretChoice, "error");
+          return;
         }
 
-        const result = await submitJson(
-          `/api/v1/identity/sso/providers/${providerId}`,
-          "PATCH",
-          body,
-          strings
-        );
-        applyFeedback(result, strings.updateProviderSuccess);
-      } finally {
-        unlock?.();
-      }
-    });
+        const unlock = button ? lockElement(button, strings.pleaseWait) : null;
+        try {
+          const body: Record<string, unknown> = {
+            displayName: formData.get("displayName"),
+            issuerUrl: formData.get("issuerUrl"),
+            clientId: formData.get("clientId"),
+            scopes: formData.get("scopes"),
+            allowedEmailDomains: parseDelimitedList(
+              formData.get("allowedEmailDomains")
+            ),
+            enabled: formData.get("enabled") === "on"
+          };
+          if (clientSecret.length > 0) body.clientSecret = clientSecret;
+          if (clientSecretEnvVar.length > 0) {
+            body.clientSecretEnvVar = clientSecretEnvVar;
+          }
+
+          const result = await submitJson(
+            `/api/v1/identity/sso/providers/${providerId}`,
+            "PATCH",
+            body,
+            strings
+          );
+          applyFeedback(result, strings.updateProviderSuccess);
+        } finally {
+          unlock?.();
+        }
+      })
+    );
   });
 
   document.querySelectorAll(".delete-provider-button").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const el = button as HTMLButtonElement;
-      if (el.disabled) return;
+    button.addEventListener(
+      "click",
+      asyncHandler(async () => {
+        const el = button as HTMLButtonElement;
+        if (el.disabled) return;
 
-      const providerId = el.dataset.deleteProvider!;
-      const reason = window.prompt(strings.deleteProviderPrompt);
-      if (!reason || reason.trim().length === 0) return;
+        const providerId = el.dataset.deleteProvider!;
+        const reason = window.prompt(strings.deleteProviderPrompt);
+        if (!reason || reason.trim().length === 0) return;
 
-      const unlock = lockElement(el, strings.pleaseWait);
-      try {
-        const result = await submitJson(
-          `/api/v1/identity/sso/providers/${providerId}`,
-          "DELETE",
-          { reason },
-          strings
-        );
-        applyFeedback(result, strings.deleteProviderSuccess);
-      } finally {
-        unlock();
-      }
-    });
+        const unlock = lockElement(el, strings.pleaseWait);
+        try {
+          const result = await submitJson(
+            `/api/v1/identity/sso/providers/${providerId}`,
+            "DELETE",
+            { reason },
+            strings
+          );
+          applyFeedback(result, strings.deleteProviderSuccess);
+        } finally {
+          unlock();
+        }
+      })
+    );
   });
 }

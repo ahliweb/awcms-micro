@@ -18,6 +18,7 @@
  * matching the server's would have shown up only as a confusing round trip.
  */
 import {
+  asyncHandler,
   lockElement,
   newIdempotencyKey,
   readClientStrings,
@@ -111,9 +112,9 @@ function applyFeedback(
 export function initTenantDomainsAdmin(
   strings: TenantDomainStrings = readClientStrings<TenantDomainStrings>()
 ): void {
-  document
-    .getElementById("create-domain-form")
-    ?.addEventListener("submit", async (event) => {
+  document.getElementById("create-domain-form")?.addEventListener(
+    "submit",
+    asyncHandler(async (event) => {
       event.preventDefault();
       const form = event.target as HTMLFormElement;
       const button = submitButtonOf(form);
@@ -154,163 +155,179 @@ export function initTenantDomainsAdmin(
       } finally {
         unlock?.();
       }
-    });
+    })
+  );
 
   document.querySelectorAll(".edit-domain-form").forEach((form) => {
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const el = event.target as HTMLFormElement;
-      const button = submitButtonOf(el);
-      if (button?.disabled) return;
-      const unlock = button ? lockElement(button, strings.pleaseWait) : null;
+    form.addEventListener(
+      "submit",
+      asyncHandler(async (event) => {
+        event.preventDefault();
+        const el = event.target as HTMLFormElement;
+        const button = submitButtonOf(el);
+        if (button?.disabled) return;
+        const unlock = button ? lockElement(button, strings.pleaseWait) : null;
 
-      try {
-        const domainId = el.dataset.domainId!;
-        const formData = new FormData(el);
-        // The status <select> always renders (Issue #563 post-review fix),
-        // with a "no change" option (value="") — only send `status` when the
-        // admin actually picked a real value, so leaving it on "no change"
-        // never accidentally re-submits the current status as an explicit
-        // transition.
-        const statusValue = String(formData.get("status") ?? "");
+        try {
+          const domainId = el.dataset.domainId!;
+          const formData = new FormData(el);
+          // The status <select> always renders (Issue #563 post-review fix),
+          // with a "no change" option (value="") — only send `status` when the
+          // admin actually picked a real value, so leaving it on "no change"
+          // never accidentally re-submits the current status as an explicit
+          // transition.
+          const statusValue = String(formData.get("status") ?? "");
 
-        const body: Record<string, unknown> = {
-          domainType: formData.get("domainType"),
-          routeMode: formData.get("routeMode"),
-          verificationMethod: optionalTrimmed(
-            formData.get("verificationMethod")
-          ),
-          verificationRecordName: optionalTrimmed(
-            formData.get("verificationRecordName")
-          ),
-          verificationRecordValue: optionalTrimmed(
-            formData.get("verificationRecordValue")
-          ),
-          redirectToPrimary: formData.get("redirectToPrimary") === "on"
-        };
-        if (statusValue !== "") {
-          body.status = statusValue;
+          const body: Record<string, unknown> = {
+            domainType: formData.get("domainType"),
+            routeMode: formData.get("routeMode"),
+            verificationMethod: optionalTrimmed(
+              formData.get("verificationMethod")
+            ),
+            verificationRecordName: optionalTrimmed(
+              formData.get("verificationRecordName")
+            ),
+            verificationRecordValue: optionalTrimmed(
+              formData.get("verificationRecordValue")
+            ),
+            redirectToPrimary: formData.get("redirectToPrimary") === "on"
+          };
+          if (statusValue !== "") {
+            body.status = statusValue;
+          }
+
+          const result = await submitJson(
+            `/api/v1/tenant/domains/${domainId}`,
+            "PATCH",
+            body,
+            strings
+          );
+
+          applyFeedback(result, strings.updateSuccess);
+        } finally {
+          unlock?.();
         }
-
-        const result = await submitJson(
-          `/api/v1/tenant/domains/${domainId}`,
-          "PATCH",
-          body,
-          strings
-        );
-
-        applyFeedback(result, strings.updateSuccess);
-      } finally {
-        unlock?.();
-      }
-    });
+      })
+    );
   });
 
   document.querySelectorAll(".verify-domain-button").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const el = button as HTMLButtonElement;
-      if (el.disabled) return;
-      const confirmation = await openConfirmDialog(CONFIRM_DIALOG_ID, {
-        title: strings.verifyConfirmTitle,
-        body: strings.verifyConfirm,
-        confirmLabel: strings.confirmButton,
-        cancelLabel: strings.cancelButton
-      });
-      if (!confirmation.confirmed) return;
+    button.addEventListener(
+      "click",
+      asyncHandler(async () => {
+        const el = button as HTMLButtonElement;
+        if (el.disabled) return;
+        const confirmation = await openConfirmDialog(CONFIRM_DIALOG_ID, {
+          title: strings.verifyConfirmTitle,
+          body: strings.verifyConfirm,
+          confirmLabel: strings.confirmButton,
+          cancelLabel: strings.cancelButton
+        });
+        if (!confirmation.confirmed) return;
 
-      const unlock = lockElement(el, strings.pleaseWait);
-      try {
-        const domainId = el.dataset.domainId!;
-        const result = await submitJson(
-          `/api/v1/tenant/domains/${domainId}/verify`,
-          "POST",
-          {},
-          strings,
-          { "Idempotency-Key": newIdempotencyKey() }
-        );
-        applyFeedback(result, strings.verifySuccess);
-      } finally {
-        unlock();
-      }
-    });
+        const unlock = lockElement(el, strings.pleaseWait);
+        try {
+          const domainId = el.dataset.domainId!;
+          const result = await submitJson(
+            `/api/v1/tenant/domains/${domainId}/verify`,
+            "POST",
+            {},
+            strings,
+            { "Idempotency-Key": newIdempotencyKey() }
+          );
+          applyFeedback(result, strings.verifySuccess);
+        } finally {
+          unlock();
+        }
+      })
+    );
   });
 
   document.querySelectorAll(".set-primary-domain-button").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const el = button as HTMLButtonElement;
-      if (el.disabled) return;
-      const confirmation = await openConfirmDialog(CONFIRM_DIALOG_ID, {
-        title: strings.setPrimaryConfirmTitle,
-        body: strings.setPrimaryConfirm,
-        confirmLabel: strings.confirmButton,
-        cancelLabel: strings.cancelButton
-      });
-      if (!confirmation.confirmed) return;
+    button.addEventListener(
+      "click",
+      asyncHandler(async () => {
+        const el = button as HTMLButtonElement;
+        if (el.disabled) return;
+        const confirmation = await openConfirmDialog(CONFIRM_DIALOG_ID, {
+          title: strings.setPrimaryConfirmTitle,
+          body: strings.setPrimaryConfirm,
+          confirmLabel: strings.confirmButton,
+          cancelLabel: strings.cancelButton
+        });
+        if (!confirmation.confirmed) return;
 
-      const unlock = lockElement(el, strings.pleaseWait);
-      try {
-        const domainId = el.dataset.domainId!;
-        const result = await submitJson(
-          `/api/v1/tenant/domains/${domainId}/set-primary`,
-          "POST",
-          {},
-          strings,
-          { "Idempotency-Key": newIdempotencyKey() }
-        );
-        applyFeedback(result, strings.setPrimarySuccess);
-      } finally {
-        unlock();
-      }
-    });
+        const unlock = lockElement(el, strings.pleaseWait);
+        try {
+          const domainId = el.dataset.domainId!;
+          const result = await submitJson(
+            `/api/v1/tenant/domains/${domainId}/set-primary`,
+            "POST",
+            {},
+            strings,
+            { "Idempotency-Key": newIdempotencyKey() }
+          );
+          applyFeedback(result, strings.setPrimarySuccess);
+        } finally {
+          unlock();
+        }
+      })
+    );
   });
 
   document.querySelectorAll(".delete-domain-button").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const el = button as HTMLButtonElement;
-      if (el.disabled) return;
+    button.addEventListener(
+      "click",
+      asyncHandler(async () => {
+        const el = button as HTMLButtonElement;
+        if (el.disabled) return;
 
-      const confirmation = await openConfirmDialog(CONFIRM_DIALOG_ID, {
-        title: strings.deleteConfirmTitle,
-        body: strings.deleteConfirm,
-        confirmLabel: strings.confirmButton,
-        cancelLabel: strings.cancelButton,
-        requireReason: true,
-        reasonLabel: strings.deleteReasonPrompt,
-        reasonRequiredError: strings.reasonRequiredError
-      });
-      if (!confirmation.confirmed || !confirmation.reason) return;
-      const reason = confirmation.reason;
+        const confirmation = await openConfirmDialog(CONFIRM_DIALOG_ID, {
+          title: strings.deleteConfirmTitle,
+          body: strings.deleteConfirm,
+          confirmLabel: strings.confirmButton,
+          cancelLabel: strings.cancelButton,
+          requireReason: true,
+          reasonLabel: strings.deleteReasonPrompt,
+          reasonRequiredError: strings.reasonRequiredError
+        });
+        if (!confirmation.confirmed || !confirmation.reason) return;
+        const reason = confirmation.reason;
 
-      const unlock = lockElement(el, strings.pleaseWait);
-      try {
-        const domainId = el.dataset.domainId!;
-        const result = await submitJson(
-          `/api/v1/tenant/domains/${domainId}`,
-          "DELETE",
-          { reason },
-          strings
-        );
-        applyFeedback(result, strings.deleteSuccess);
-      } finally {
-        unlock();
-      }
-    });
+        const unlock = lockElement(el, strings.pleaseWait);
+        try {
+          const domainId = el.dataset.domainId!;
+          const result = await submitJson(
+            `/api/v1/tenant/domains/${domainId}`,
+            "DELETE",
+            { reason },
+            strings
+          );
+          applyFeedback(result, strings.deleteSuccess);
+        } finally {
+          unlock();
+        }
+      })
+    );
   });
 
   document.querySelectorAll(".copy-record-button").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const el = button as HTMLButtonElement;
-      const value = el.dataset.copyValue ?? "";
+    button.addEventListener(
+      "click",
+      asyncHandler(async () => {
+        const el = button as HTMLButtonElement;
+        const value = el.dataset.copyValue ?? "";
 
-      try {
-        await navigator.clipboard.writeText(value);
-        showBanner(BANNER_ID, strings.copySuccess, "success");
-      } catch {
-        // Clipboard access is denied outside a secure context and in some
-        // embedded webviews — the admin gets a real error line instead of a
-        // silently unchanged clipboard.
-        showBanner(BANNER_ID, strings.copyError, "error");
-      }
-    });
+        try {
+          await navigator.clipboard.writeText(value);
+          showBanner(BANNER_ID, strings.copySuccess, "success");
+        } catch {
+          // Clipboard access is denied outside a secure context and in some
+          // embedded webviews — the admin gets a real error line instead of a
+          // silently unchanged clipboard.
+          showBanner(BANNER_ID, strings.copyError, "error");
+        }
+      })
+    );
   });
 }

@@ -17,6 +17,7 @@
  * field exactly as the user left it.
  */
 import {
+  asyncHandler,
   lockElement,
   readClientStrings,
   reloadAfterDelay,
@@ -65,9 +66,9 @@ function applyFeedback(result: MutationOutcome, successMessage: string): void {
 export function initAccessUsersAdmin(
   strings: AccessUsersStrings = readClientStrings<AccessUsersStrings>()
 ): void {
-  document
-    .getElementById("create-user-form")
-    ?.addEventListener("submit", async (event) => {
+  document.getElementById("create-user-form")?.addEventListener(
+    "submit",
+    asyncHandler(async (event) => {
       event.preventDefault();
       const form = event.target as HTMLFormElement;
       const button = submitButtonOf(form);
@@ -94,11 +95,12 @@ export function initAccessUsersAdmin(
       } finally {
         unlock?.();
       }
-    });
+    })
+  );
 
-  document
-    .getElementById("create-role-form")
-    ?.addEventListener("submit", async (event) => {
+  document.getElementById("create-role-form")?.addEventListener(
+    "submit",
+    asyncHandler(async (event) => {
       event.preventDefault();
       const form = event.target as HTMLFormElement;
       const button = submitButtonOf(form);
@@ -124,144 +126,160 @@ export function initAccessUsersAdmin(
       } finally {
         unlock?.();
       }
-    });
+    })
+  );
 
   document.querySelectorAll(".edit-role-form").forEach((form) => {
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const el = event.target as HTMLFormElement;
-      const button = submitButtonOf(el);
-      if (button?.disabled) return;
-      const unlock = button ? lockElement(button, strings.pleaseWait) : null;
+    form.addEventListener(
+      "submit",
+      asyncHandler(async (event) => {
+        event.preventDefault();
+        const el = event.target as HTMLFormElement;
+        const button = submitButtonOf(el);
+        if (button?.disabled) return;
+        const unlock = button ? lockElement(button, strings.pleaseWait) : null;
 
-      try {
-        const roleId = el.dataset.roleId!;
-        const isSystem = el.dataset.roleSystem === "true";
-        const formData = new FormData(el);
+        try {
+          const roleId = el.dataset.roleId!;
+          const isSystem = el.dataset.roleSystem === "true";
+          const formData = new FormData(el);
 
-        const body: Record<string, unknown> = {
-          roleName: formData.get("roleName")
-        };
-        if (!isSystem) {
-          body.permissionIds = formData.getAll("permissionIds");
+          const body: Record<string, unknown> = {
+            roleName: formData.get("roleName")
+          };
+          if (!isSystem) {
+            body.permissionIds = formData.getAll("permissionIds");
+          }
+
+          const result = await submitJson(
+            `/api/v1/roles/${roleId}`,
+            "PATCH",
+            body,
+            strings
+          );
+          applyFeedback(result, strings.updateRoleSuccess);
+        } finally {
+          unlock?.();
         }
-
-        const result = await submitJson(
-          `/api/v1/roles/${roleId}`,
-          "PATCH",
-          body,
-          strings
-        );
-        applyFeedback(result, strings.updateRoleSuccess);
-      } finally {
-        unlock?.();
-      }
-    });
+      })
+    );
   });
 
   document.querySelectorAll(".delete-role-button").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const el = button as HTMLButtonElement;
-      if (el.disabled) return;
+    button.addEventListener(
+      "click",
+      asyncHandler(async () => {
+        const el = button as HTMLButtonElement;
+        if (el.disabled) return;
 
-      const roleId = el.dataset.deleteRole!;
-      const confirmation = await openConfirmDialog(CONFIRM_DIALOG_ID, {
-        title: strings.deleteRoleConfirmTitle,
-        body: strings.deleteRoleConfirmBody,
-        confirmLabel: strings.confirmButton,
-        cancelLabel: strings.cancelButton,
-        requireReason: true,
-        reasonLabel: strings.deleteRolePrompt,
-        reasonRequiredError: strings.reasonRequiredError
-      });
-      if (!confirmation.confirmed || !confirmation.reason) return;
-      const reason = confirmation.reason;
+        const roleId = el.dataset.deleteRole!;
+        const confirmation = await openConfirmDialog(CONFIRM_DIALOG_ID, {
+          title: strings.deleteRoleConfirmTitle,
+          body: strings.deleteRoleConfirmBody,
+          confirmLabel: strings.confirmButton,
+          cancelLabel: strings.cancelButton,
+          requireReason: true,
+          reasonLabel: strings.deleteRolePrompt,
+          reasonRequiredError: strings.reasonRequiredError
+        });
+        if (!confirmation.confirmed || !confirmation.reason) return;
+        const reason = confirmation.reason;
 
-      const unlock = lockElement(el, strings.pleaseWait);
-      try {
-        const result = await submitJson(
-          `/api/v1/roles/${roleId}`,
-          "DELETE",
-          { reason },
-          strings
-        );
-        applyFeedback(result, strings.deleteRoleSuccess);
-      } finally {
-        unlock();
-      }
-    });
+        const unlock = lockElement(el, strings.pleaseWait);
+        try {
+          const result = await submitJson(
+            `/api/v1/roles/${roleId}`,
+            "DELETE",
+            { reason },
+            strings
+          );
+          applyFeedback(result, strings.deleteRoleSuccess);
+        } finally {
+          unlock();
+        }
+      })
+    );
   });
 
   document.querySelectorAll(".toggle-status-button").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const el = button as HTMLButtonElement;
-      if (el.disabled) return;
-      const unlock = lockElement(el, strings.pleaseWait);
+    button.addEventListener(
+      "click",
+      asyncHandler(async () => {
+        const el = button as HTMLButtonElement;
+        if (el.disabled) return;
+        const unlock = lockElement(el, strings.pleaseWait);
 
-      try {
-        const tenantUserId = el.dataset.toggleUser!;
-        const nextStatus = el.dataset.nextStatus!;
+        try {
+          const tenantUserId = el.dataset.toggleUser!;
+          const nextStatus = el.dataset.nextStatus!;
 
-        const result = await submitJson(
-          `/api/v1/users/${tenantUserId}`,
-          "PATCH",
-          { status: nextStatus },
-          strings
-        );
-        applyFeedback(result, strings.updateStatusSuccess);
-      } finally {
-        unlock();
-      }
-    });
+          const result = await submitJson(
+            `/api/v1/users/${tenantUserId}`,
+            "PATCH",
+            { status: nextStatus },
+            strings
+          );
+          applyFeedback(result, strings.updateStatusSuccess);
+        } finally {
+          unlock();
+        }
+      })
+    );
   });
 
   document.querySelectorAll(".assign-role-form").forEach((form) => {
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const el = event.target as HTMLFormElement;
-      const button = submitButtonOf(el);
-      if (button?.disabled) return;
+    form.addEventListener(
+      "submit",
+      asyncHandler(async (event) => {
+        event.preventDefault();
+        const el = event.target as HTMLFormElement;
+        const button = submitButtonOf(el);
+        if (button?.disabled) return;
 
-      const formData = new FormData(el);
-      const roleId = formData.get("roleId");
-      if (!roleId) return;
+        const formData = new FormData(el);
+        const roleId = formData.get("roleId");
+        if (!roleId) return;
 
-      const unlock = button ? lockElement(button, strings.pleaseWait) : null;
-      try {
-        const tenantUserId = el.dataset.assignUser!;
-        const result = await submitJson(
-          "/api/v1/access/assignments",
-          "POST",
-          { tenantUserId, roleId },
-          strings
-        );
-        applyFeedback(result, strings.assignRoleSuccess);
-      } finally {
-        unlock?.();
-      }
-    });
+        const unlock = button ? lockElement(button, strings.pleaseWait) : null;
+        try {
+          const tenantUserId = el.dataset.assignUser!;
+          const result = await submitJson(
+            "/api/v1/access/assignments",
+            "POST",
+            { tenantUserId, roleId },
+            strings
+          );
+          applyFeedback(result, strings.assignRoleSuccess);
+        } finally {
+          unlock?.();
+        }
+      })
+    );
   });
 
   document.querySelectorAll(".role-chip-remove").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const el = button as HTMLButtonElement;
-      if (el.disabled) return;
-      const unlock = lockElement(el);
+    button.addEventListener(
+      "click",
+      asyncHandler(async () => {
+        const el = button as HTMLButtonElement;
+        if (el.disabled) return;
+        const unlock = lockElement(el);
 
-      try {
-        const tenantUserId = el.dataset.unassignUser!;
-        const roleId = el.dataset.unassignRole!;
+        try {
+          const tenantUserId = el.dataset.unassignUser!;
+          const roleId = el.dataset.unassignRole!;
 
-        const result = await submitJson(
-          "/api/v1/access/assignments",
-          "DELETE",
-          { tenantUserId, roleId },
-          strings
-        );
-        applyFeedback(result, strings.unassignRoleSuccess);
-      } finally {
-        unlock();
-      }
-    });
+          const result = await submitJson(
+            "/api/v1/access/assignments",
+            "DELETE",
+            { tenantUserId, roleId },
+            strings
+          );
+          applyFeedback(result, strings.unassignRoleSuccess);
+        } finally {
+          unlock();
+        }
+      })
+    );
   });
 }

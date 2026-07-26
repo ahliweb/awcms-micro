@@ -71,12 +71,24 @@ const NO_MISUSED_PROMISES_EXEMPT = [
 export default [
   {
     ignores: [
+      // Root-anchored (flat-config patterns without a leading `**/` are
+      // relative to the repo root, not recursive).
       "dist/**",
       "node_modules/**",
       ".astro/**",
       "coverage/**",
       "graphify-out/**",
-      "tools/static-analysis/node_modules/**"
+      "tools/static-analysis/node_modules/**",
+      // Recursive twins. `.claude/worktrees/agent-*/` holds full checkouts —
+      // sources AND their built `dist/` — so without these ESLint scans every
+      // parallel agent's tree, and its JSON report grew past 2.8 MB and could
+      // no longer be parsed by the wrapper: a gate that fails for a reason
+      // unrelated to the code under review. CI has no worktrees, so this only
+      // ever bites locally, which is exactly why it must be pinned here.
+      ".claude/**",
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/.astro/**"
     ]
   },
 

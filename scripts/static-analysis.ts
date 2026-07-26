@@ -31,6 +31,8 @@
  * counts the source files that exist and fails unless the tool actually
  * looked at most of them, even when nothing else complained.
  */
+import { unlink } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 
 const REPO_ROOT = path.resolve(import.meta.dirname, "..");
@@ -170,6 +172,16 @@ type EslintResult = {
  */
 async function runEslint(): Promise<never> {
   const bin = await requireBin("eslint");
+
+  // The JSON formatter emits one entry per LINTED file, so on this repo the
+  // report is ~350 KB and growing. `Bun.spawnSync` TRUNCATES a pipe that big,
+  // which made the gate fail on report SIZE rather than on anything in the
+  // code — the parse blew up mid-token and reported "invalid JSON". Route it
+  // through `-o` so the size of the report can never decide the verdict.
+  const reportPath = path.join(
+    os.tmpdir(),
+    `awcms-micro-eslint-${process.pid}.json`
+  );
   const proc = Bun.spawnSync(
     [
       bin,
@@ -178,22 +190,25 @@ async function runEslint(): Promise<never> {
       ESLINT_CONFIG,
       "--format",
       "json",
+      "-o",
+      reportPath,
       "."
     ],
     { cwd: REPO_ROOT, stdout: "pipe", stderr: "pipe" }
   );
-  const stdout = proc.stdout.toString();
   const stderr = proc.stderr.toString();
 
   let results: EslintResult[];
   try {
-    results = JSON.parse(stdout) as EslintResult[];
+    results = JSON.parse(await Bun.file(reportPath).text()) as EslintResult[];
   } catch {
-    process.stderr.write(stdout);
+    process.stderr.write(proc.stdout.toString());
     process.stderr.write(stderr);
     fail(
       `static-analysis: eslint tidak mengembalikan JSON yang valid (exit ${proc.exitCode}).`
     );
+  } finally {
+    await unlink(reportPath).catch(() => {});
   }
 
   // The JSON formatter emits one entry per LINTED file, including clean ones —

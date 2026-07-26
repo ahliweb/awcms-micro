@@ -50,6 +50,8 @@
  * found a mismatch or not") without a second round-trip.
  */
 
+import { safeErrorDetail } from "../logging/error-sanitizer";
+
 export interface SubmitResult<TData = unknown> {
   ok: boolean;
   code?: string;
@@ -221,6 +223,34 @@ export function lockElement(
     if (busyLabel) {
       el.textContent = originalText;
     }
+  };
+}
+
+/**
+ * Wrap an `async` event handler so `addEventListener` gets a void-returning
+ * listener with a rejection path (Issue #369/#372).
+ *
+ * `addEventListener("submit", async (e) => …)` hands the DOM a promise it
+ * never looks at: if anything before the handler's own `try` throws — or the
+ * `try` block itself rejects — the failure becomes an unhandled rejection and
+ * the user sees nothing at all. That silent-failure shape is the same one that
+ * cost this repo #359/#361, and it was invisible to every gate while the code
+ * still lived inside `<script>` blocks in `.astro`.
+ *
+ * This does NOT replace per-handler error handling — handlers that can fail
+ * visibly should still catch and `showBanner`. What it guarantees is that no
+ * rejection is discarded without a trace, and it gives one chokepoint to hook
+ * client-side error reporting into later.
+ */
+export function asyncHandler<E extends Event>(
+  handler: (event: E) => Promise<void>
+): (event: E) => void {
+  return (event) => {
+    handler(event).catch((error: unknown) => {
+      console.error(
+        `Unhandled error in async event handler: ${safeErrorDetail(error)}`
+      );
+    });
   };
 }
 
