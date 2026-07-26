@@ -1,0 +1,15 @@
+{
+  "//": "Agent worktrees (`.claude/worktrees/agent-*/`) are full checkouts of this repository at some other commit. Without these excludes VS Code indexes them as if they were project sources: the TypeScript server type-checks stale copies, and their errors show up in the Problems panel attributed to files that may no longer exist on any branch (observed after PR #374 — 14 `ts(2339)` errors from a worktree whose code had already been fixed on main). They are also invisible to `git status`, so nothing else warns you. Excluding them costs nothing: the agent that owns a worktree runs its own checks inside it.",
+  "files.exclude": {
+    "**/.claude/worktrees": true
+  },
+  "search.exclude": {
+    "**/.claude/worktrees": true,
+    "**/tools/static-analysis/node_modules": true
+  },
+  "files.watcherExclude": {
+    "**/.claude/worktrees/**": true,
+    "**/tools/static-analysis/node_modules/**": true,
+    "**/dist/**": true
+  }
+}
