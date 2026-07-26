@@ -42,6 +42,10 @@ blob-report/
 
 # Claude Code user-local settings (jangan commit)
 .claude/settings.local.json
+# Agent worktrees — full checkouts of this repo at another commit, created by
+# parallel agent runs. Never part of the tree; see scripts/cleanup-agent-worktrees.sh
+# (they can outlive the agent when a container writes root-owned files into them).
+.claude/worktrees/
 
 # graphify incremental-extraction cache — machine-local, regenerable, large.
 # The graph outputs (graph.json/GRAPH_REPORT.md/manifest.json/GRAPH_TREE.html)
