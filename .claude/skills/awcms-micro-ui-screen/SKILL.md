@@ -7,6 +7,34 @@ description: Implementasikan layar/komponen UI AWCMS-Micro sesuai design system.
 
 Ikuti **`docs/awcms-micro/14_ui_ux_design_system.md`** (token, komponen, layout, layar) dan **`docs/awcms-micro/15_frontend_architecture_integration.md`** (SSR/islands, API client, offline).
 
+## Halaman `.astro` tipis (Issue #372, ADR-0038)
+
+Halaman admin **bukan** tempat menaruh logika. Sebelum #372 ada 26 dari 51
+halaman melewati 500 baris dan 65% isi `src/pages`+`src/layouts` adalah
+`<script>` inline — 19.223 baris yang selama itu tidak diperiksa alat apa
+pun. Tiga gerakan wajib untuk halaman baru maupun saat menyentuh halaman
+lama:
+
+- **Skrip klien → `src/modules/<m>/presentation/<page>-client.ts`.**
+  Jangan tulis logika di dalam `<script>`. Impor modulnya dari `<script>`
+  (bukan dari frontmatter — frontmatter berjalan di server).
+- **Pemuatan data frontmatter → `presentation/<page>-page-data.ts`.**
+- **`<style>` panjang → `presentation/<page>.css`.**
+
+Target praktis: halaman `.astro` di bawah ~400 baris. Rujukan nyata hasil
+#372 — `admin/access-users` 1005→397, `admin/analytics` 1123→380,
+`admin/security` 1069→399, `admin/tenant/domains` 1045→371, dengan
+keenam spec E2E lulus **tanpa satu pun disunting**.
+
+Alasannya bukan estetika: begitu kode jadi `.ts`, ia masuk `tsc` (TS 7 di
+root) dan bisa di-unit-test — dua hal yang mustahil selama ia teks di
+dalam `.astro`. `astro check` (toolchain karantina TS 6, Issue #369) hanya
+menambal sisanya.
+
+Ekstrak komponen HANYA untuk pola yang terukur muncul di **lebih dari
+satu** halaman — hitung dulu, jangan menebak. Pola yang dipakai sekali
+bukan komponen.
+
 ## Checklist implementasi layar
 
 1. **Token dulu** — pakai CSS variables doc 14 (`--color-*`, `--sp-*`, `--fs-*`, termasuk `--color-primary-strong`/`--color-success-strong`/`--color-danger-strong` untuk teks putih di atas warna solid, Issue #434 — semua ≥4.5:1 terukur, jangan pakai varian polos untuk itu; `--color-warning-strong`/`--color-info-strong` untuk teks/ikon amber/info di atas surface/tint terang, #314; `--color-scrim` untuk backdrop dialog/drawer). Jangan hardcode warna/ukuran. Theme via `data-theme` tanpa flash — **halaman yang meng-import `tokens.css` WAJIB juga menjalankan `THEME_INIT_SCRIPT_BODY`**, kalau tidak override `[data-theme="dark"]` tak pernah berlaku dan halaman light-only walau OS dark (fix login #313).

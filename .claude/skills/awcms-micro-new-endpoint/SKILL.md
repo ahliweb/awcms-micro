@@ -15,12 +15,40 @@ flowchart LR
   Idem -->|Tidak| Svc
 ```
 
+## Pakai `defineTenantRoute`, jangan tulis tangan pembukaannya (Issue #370)
+
+Rute tenant-scoped baru **wajib** lewat `defineTenantRoute`
+(`src/modules/_shared/tenant-route.ts`). Ia memuat sekali pembukaan yang
+dulu disalin ke 201 dari 260 rute: `resolveAuthInputs` → guard
+tenant/token → `getDatabaseClient` → `hashSessionToken` → `withTenant` →
+`authorizeInTransaction` → short-circuit `auth.denied`.
+
+```ts
+export const GET = defineTenantRoute({
+  workClass: "reporting",          // WAJIB — tidak ada default
+  authorize: { moduleKey: "…", activityCode: "…", action: "read" },
+  handler: async ({ tx, auth, request }) => ok({ … })
+});
+```
+
+`workClass` sengaja dibuat field wajib, bukan opsional ber-default
+`"interactive"`: sebelum ini 221 dari 241 rute mendapat kelas
+`interactive` semata karena tidak ada yang meneruskan argumennya —
+keputusan yang tak pernah benar-benar diambil, dan rute berat diam-diam
+berebut slot dengan login.
+
+Gerbang `bun run api:tenant-route:check` (bagian dari `bun run check`)
+menolak rute baru yang memanggil `withTenant` langsung. Daftar
+`NOT_YET_MIGRATED` berisi rute lama yang belum dipindah dan **hanya boleh
+menyusut** — gerbangnya juga gagal untuk entri basi, jadi menghapus satu
+rute dari daftar tanpa memigrasinya akan ketahuan.
+
 ## Aturan
 
 1. Route hanya orkestrasi; business logic di service, query di repository.
 2. Base path `/api/v1`. Auth wajib kecuali endpoint public eksplisit.
 3. Tenant-scoped → wajib header `X-AWCMS-Micro-Tenant-ID` + tenant context + RLS.
-   **Rute publik tenant-scoped** (tanpa sesi/header — mis. halaman blog publik, RSS, sitemap) resolve tenant lewat segmen path `tenantCode` (`/<prefix>/{tenantCode}/...`), **bukan** subdomain — lihat ADR-0009 (`docs/adr/0009-public-tenant-scoped-routes.md`) untuk alasan lengkap (subdomain butuh wildcard DNS/TLS, bertentangan dengan topologi LAN-first default). Belum ada implementasi contoh di base ini — Issue #540 (epic #536, `blog_content`) adalah konsumen pertama.
+   **Rute publik tenant-scoped** (tanpa sesi/header — mis. halaman blog publik, RSS, sitemap) resolve tenant lewat segmen path `tenantCode` (`/<prefix>/{tenantCode}/...`), **bukan** subdomain — lihat ADR-0009 (`docs/adr/0009-public-tenant-scoped-routes.md`) untuk alasan lengkap (subdomain butuh wildcard DNS/TLS per tenant). Resolusi berbasis host ada tapi **opt-in**: `PUBLIC_TENANT_RESOLUTION_MODE=host_default` + tabel `awcms_micro_tenant_domains`. Contoh nyata di base: rute publik `blog_content` dan `seo-distribution` (sitemap/feed).
 4. Cek akses dengan `awcms-micro-abac-guard` (default deny).
 5. Validasi semua input (UUID, enum, length, numeric range, unknown field).
    Baca body lewat `readJsonBody`/`readTextBody`/`readFormBody`
