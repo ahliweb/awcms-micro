@@ -110,6 +110,16 @@ Coolify tidak bisa publish port ke `127.0.0.1` atau pakai `-p` sama sekali (paka
 untuk pin IP statis + reverse proxy langsung ke IP itu); dan image `Dockerfile.production` tidak
 menyertakan `scripts/` sehingga migration one-shot butuh container terpisah dengan source lengkap.
 
+## Credential otomasi (agent-cred)
+
+Kalau task ini butuh token API Coolify/Cloudflare atau kredensial server
+secara interaktif (dijalankan agent/operator dalam satu sesi kerja, bukan
+job cron), ambil lewat `agent-cred get <service> <field>` (isi dulu dengan
+`agent-cred set <service>` bila belum ada) — jangan `read -s` ad-hoc atau
+credential inline baru. TTL cache 3 jam. Detail: repo `personal-coding`
+`docs/sop-agent-cred-credential-cache.md`. Job cron/systemd (lihat section
+di bawah) tetap pakai env var/secret file seperti biasa.
+
 ## Job terjadwal: `docker exec … bun run <job>` TIDAK bisa dipakai
 
 Konsekuensi kedua dari image tanpa `scripts/`, ditemukan saat memasang jadwal
