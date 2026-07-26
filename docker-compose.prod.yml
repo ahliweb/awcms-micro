@@ -2,7 +2,7 @@
 # topology (Issue #682, epic #679, platform-hardening).
 #
 # `docker-compose.yml` (the default) is a bind-mount-and-build-at-startup
-# stack for the LAN-first/offline single-server topology — see that file's
+# stack for the full-online single-host topology — see that file's
 # own header for why that tradeoff is deliberate there. This file is the
 # alternative for when build-at-startup is undesirable: it builds (or
 # pulls, if you push `awcms-micro:${APP_IMAGE_TAG}` to a registry and swap

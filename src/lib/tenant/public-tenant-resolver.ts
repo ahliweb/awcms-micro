@@ -2,8 +2,13 @@
  * Public (anonymous, no session) tenant resolution — ADR-0009. Every
  * public tenant-scoped route resolves the tenant from an explicit
  * `tenantCode` path segment (`/<prefix>/{tenantCode}/...`), not a
- * subdomain or header, because this base defaults to a LAN-first/offline
- * topology with no guaranteed public DNS/TLS per tenant.
+ * subdomain or header, because a deployment is not guaranteed to have
+ * public DNS/TLS per tenant. Host-based resolution exists but is OPT-IN
+ * (`PUBLIC_TENANT_RESOLUTION_MODE=host_default` + `awcms_micro_tenant_domains`,
+ * Issue #556); this path form is the mode-independent fallback that always
+ * works. The older wording here justified it with a "LAN-first/offline
+ * default" that ADR-0027/ADR-0034 removed — the base is a full-online
+ * website template, and the routing choice stands on its own without it.
  *
  * `awcms_micro_tenants` is RLS-free by design (ADR-0003 — it is the root
  * of the tenant hierarchy itself), so this query runs directly on the
