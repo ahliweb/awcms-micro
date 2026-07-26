@@ -1,10 +1,13 @@
-# docker-compose.yml — LAN-first single-server stack (Issue 12.2, doc 18
-# §Topologi deployment LAN-first, doc 07 §Profil per-environment; hardened
-# by Issue #682, epic #679, platform-hardening).
+# docker-compose.yml — full-online single-host stack (Issue 12.2, doc 18
+# §Topologi deployment full-online single-host, doc 07 §Profil
+# per-environment; hardened by Issue #682, epic #679, platform-hardening).
 #
-# Default stack: `app` + `db` on one server, matching doc 18's offline/LAN
-# topology (one machine runs the application and PostgreSQL together;
-# clients on the LAN hit the app directly, no internet dependency). See
+# Default stack: `app` + `db` on one server, matching doc 18's full-online
+# single-host topology (one machine runs the application and PostgreSQL
+# together, reached over the public internet through a reverse proxy).
+# ADR-0027/ADR-0034 make this base a full-online website template; the
+# `offline-lan` label survives only as an applicability tag for a derived
+# application, never as an operating mode of this repo. See
 # `docs/awcms-micro/deployment-profiles.md` for how this maps to each
 # environment profile, and `deploy/` for the systemd/nginx/pgbouncer/backup
 # assets this compose file complements rather than replaces (systemd is the
@@ -12,7 +15,7 @@
 # For a registry-based/CI-pushed deployment with an immutable pre-built
 # image instead of this file's bind-mount-and-build-at-startup model, see
 # `docker-compose.prod.yml` + `Dockerfile.production` instead — this file
-# stays the LAN-first default, that one is the alternative for the
+# stays the single-host default, that one is the alternative for the
 # topology where build-at-startup is undesirable (Issue #682's own scope
 # note on this exact tradeoff).
 #
@@ -37,9 +40,8 @@
 # into `oven/bun:1.3.14` (pinned — Issue #682; never `node`, AGENTS.md rule
 # 14, doc 18 §Runtime & tooling) and runs
 # `bun install && bun run build && bun ./dist/server/entry.mjs` as the
-# container command. This is the simplest option for a LAN-first,
-# single-server, offline-capable deployment where operators are expected to
-# `git pull`/rebuild in place; it trades a slightly slower container start
+# container command. This is the simplest option for a single-host
+# deployment where operators are expected to `git pull`/rebuild in place; it trades a slightly slower container start
 # (install + build happen every `up`) for zero extra Dockerfile/image-layer
 # maintenance — see `docker-compose.prod.yml` above for the alternative.
 services:
@@ -174,7 +176,7 @@ services:
     volumes:
       - .:/app
     # `bun install` runs on every `up` so the container always matches the
-    # mounted source tree/lockfile; acceptable for the LAN-first target.
+    # mounted source tree/lockfile; acceptable for the single-host target.
     # HOME is set explicitly because the container's non-root uid has no
     # passwd entry (bind-mounted repo, not a real image user) — without it
     # Bun/Vite cache lookups can fail trying to resolve a home directory.
@@ -253,7 +255,7 @@ services:
 
   # Optional PgBouncer front-end for the `db` service — gated behind the
   # "pgbouncer" Compose profile so it never starts by default (doc 18's
-  # LAN-first topology does not need it; see
+  # single-host topology does not need it; see
   # deploy/pgbouncer/pgbouncer.ini.example and
   # docs/awcms-micro/database-pooling.md §7). Enable explicitly with:
   #   docker compose --profile pgbouncer up
