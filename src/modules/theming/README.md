@@ -58,8 +58,8 @@ audited.
 - `application/` — `theme-config-directory.ts`, `theme-preview-directory.ts`,
   `theme-service.ts` (orchestration + injected audit), `theme-render-resolver.ts`,
   `theme-preview-render.ts`.
-- composition roots in `src/lib/theming/` (`theme-media.ts`, `theme-public-css.ts`,
-  `theme-preview.ts`) wire `media_library` + the public-tenant resolver.
+- `presentation/` — composition roots (`theme-media.ts`, `theme-public-css.ts`,
+  `theme-preview.ts`) wiring `media_library` + the public-tenant resolver (ADR-0038).
 - routes: `src/pages/api/v1/theming/*` (admin API), `src/pages/theming/tokens.css.ts`
   (public), `src/pages/theming/preview/[token].astro` + `preview-tokens/[token].css.ts`.
 - `src/layouts/PublicThemeLayout.astro` — the trusted render layout.

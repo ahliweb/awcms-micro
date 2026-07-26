@@ -110,8 +110,8 @@ contentRoll-up` (NUL-joined so the free-text parts cannot merge across their
   `feeds_enabled`, all within safe bounds (CHECK constraints + app validation).
   Managed through the same `GET`/`PUT /api/v1/seo/config` (existing `config`
   activity — no new permission; the public routes are unauthenticated).
-- **Composition root**: `src/lib/seo/discovery-providers.ts` wires the enabled
-  `seo_facts` providers + media port; `src/lib/seo/discovery-route.ts` runs the
+- **Composition root**: `presentation/discovery-providers.ts` wires the enabled
+  `seo_facts` providers + media port; `presentation/discovery-route.ts` runs the
   pipeline. The module's own `application`/`domain` import no content module.
 
 ## Security posture (ADR-0028 threat model)
@@ -184,7 +184,7 @@ spec + operator guide + privacy/retention matrix + threat model:
 Key files: `domain/redirect-{path,eligibility,target,rule,chain,query-policy,settings}.ts`,
 `domain/{url-change-plan,legacy-blog-redirect}.ts`,
 `application/{redirect-directory,redirect-resolution-service,redirect-safety,redirect-settings-directory,not-found-directory,url-change-capture,tenant-allowed-hosts}.ts`,
-composition root `src/lib/seo/redirect-middleware.ts`, routes under
+composition root `presentation/redirect-middleware.ts`, routes under
 `src/pages/api/v1/seo/{redirects,not-found}/*`, migrations `sql/083` (schema +
 worker GRANT) / `sql/084` (permissions).
 

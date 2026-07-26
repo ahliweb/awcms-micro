@@ -80,7 +80,7 @@ describe("seo_facts capability ownership (ADR-0028)", () => {
       "src/modules/seo-distribution/application/resolve-canonical-host.ts",
       // Issue #267 discovery surfaces — the aggregator/service/serializers stay
       // ignorant of any specific content module; providers are injected at the
-      // route composition root (`src/lib/seo/discovery-providers.ts`).
+      // route composition root (`src/modules/seo-distribution/presentation/discovery-providers.ts`).
       "src/modules/seo-distribution/application/seo-discovery-service.ts",
       "src/modules/seo-distribution/application/public-seo-tenant-resolution.ts",
       "src/modules/seo-distribution/domain/sitemap-serialization.ts",

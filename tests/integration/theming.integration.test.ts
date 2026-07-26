@@ -38,7 +38,7 @@ import { POST as themingRollback } from "../../src/pages/api/v1/theming/rollback
 import { POST as themingRetire } from "../../src/pages/api/v1/theming/retire";
 import { getDatabaseClient } from "../../src/lib/database/client";
 import { withTenant } from "../../src/lib/database/tenant-context";
-import { resolvePreviewContext } from "../../src/lib/theming/theme-preview";
+import { resolvePreviewContext } from "../../src/modules/theming/presentation/theme-preview";
 import { hashPreviewToken } from "../../src/modules/theming/domain/preview-token";
 
 const OWNER_LOGIN = "owner@example.com";

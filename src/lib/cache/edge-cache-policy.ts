@@ -191,7 +191,7 @@ export type EdgeCacheHeader = readonly [name: string, value: string];
  * Header set for a decision. `Cache-Control` is omitted entirely when the
  * handler already set one — this layer adds shared-cache instructions, it
  * does not second-guess a route that has thought about its own freshness
- * (`src/lib/seo/discovery-route.ts`, `src/lib/theming/theme-public-css.ts`).
+ * (`src/modules/seo-distribution/presentation/discovery-route.ts`, `src/modules/theming/presentation/theme-public-css.ts`).
  *
  * `Surrogate-Control` carries the aggressive TTL and is consumed and
  * stripped by the shared cache, so a browser never sees (or caches for)

@@ -10,7 +10,7 @@ import {
   toHttpDate,
   type DiscoverySignatureParts
 } from "../../src/modules/seo-distribution/domain/discovery-cache";
-import { parseDiscoveryLocaleParam } from "../../src/lib/seo/discovery-route";
+import { parseDiscoveryLocaleParam } from "../../src/modules/seo-distribution/presentation/discovery-route";
 
 /**
  * Issue #267 — HTTP cache validators (ETag / Last-Modified / conditional 304)

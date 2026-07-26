@@ -395,7 +395,9 @@ Modul website di bawah ini terdaftar **langsung** di registry base — di upstre
 - `visitor-analytics` (`visitor_analytics`, `type: system`) — epic #617-#624.
 - `data-lifecycle` (`data_lifecycle`, `type: system`) — Issue #745, epic #738 platform-evolution Wave 1, ADR-0013 §1 (System Foundation) — registry tabel bervolume tinggi kontribusi-modul dan mesin lifecycle (retensi/partisi/arsip/legal hold/purge), lihat `.claude/skills/awcms-micro-data-lifecycle/SKILL.md`.
 
-Struktur tiap modul: `module.ts`, `domain/`, `application/`, `infrastructure/`, `api/`, `README.md`.
+Struktur tiap modul: `module.ts`, `domain/`, `application/`, `infrastructure/`, `presentation/`, `api/`, `README.md`.
+
+`presentation/` (ADR-0038, opsional — hanya bila modul memerlukannya) menampung kode presentasi/pengiriman milik modul: composition root rute, glue middleware, dan skrip klien browser. **`src/lib/` hanya untuk infrastruktur teknis yang tidak menyandang nama domain** — sebuah namespace `src/lib/<x>/` yang bertabrakan nama dengan `moduleKey` menggagalkan `bun run modules:dag:check`.
 
 ## Urutan implementasi (jangan dilompati)
 

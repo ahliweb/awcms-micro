@@ -1,14 +1,14 @@
 /**
  * Theme asset media resolution composition root (Issue #269, ADR-0029 §7). Lives
- * in `src/lib` (never inside the module's own `application`/`domain`) because it
- * is where the `media_library` adapter is wired into `theming` — the same
- * ports-and-adapters composition-root convention `src/lib/seo/discovery-providers.ts`
- * uses. A `theming` config stores media OBJECT IDS (never URLs); this resolves
+ * in this module's `presentation/` layer (ADR-0038; never inside its own
+ * `application`/`domain`) because it is where the `media_library` adapter is wired
+ * into `theming` — the same ports-and-adapters composition-root convention
+ * `seo-distribution/presentation/discovery-providers.ts` uses. A `theming` config stores media OBJECT IDS (never URLs); this resolves
  * them to safe, same-tenant, verified public URLs through `MediaLibraryPort`,
  * dropping any id that does not resolve.
  */
-import { mediaLibraryPortAdapter } from "../../modules/media-library/application/media-library-port-adapter";
-import type { ThemeConfig } from "../../modules/theming/domain/theme-config";
+import { mediaLibraryPortAdapter } from "../../media-library/application/media-library-port-adapter";
+import type { ThemeConfig } from "../domain/theme-config";
 
 export type ResolvedThemeAsset = { url: string; altText: string | null };
 

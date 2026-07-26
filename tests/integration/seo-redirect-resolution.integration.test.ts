@@ -29,7 +29,7 @@ import { resolvePublicRedirect } from "../../src/modules/seo-distribution/applic
 import {
   resolvePublicRedirectForRequest,
   recordPublicNotFound
-} from "../../src/lib/seo/redirect-middleware";
+} from "../../src/modules/seo-distribution/presentation/redirect-middleware";
 import { withTenant } from "../../src/lib/database/tenant-context";
 import { listNotFoundObservations } from "../../src/modules/seo-distribution/application/not-found-directory";
 

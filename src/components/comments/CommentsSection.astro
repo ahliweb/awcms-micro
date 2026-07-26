@@ -307,7 +307,7 @@ const strings = {
 </style>
 
 <script>
-  import { initCommentsSection } from "../../lib/comments/comments-client";
+  import { initCommentsSection } from "../../modules/comments/presentation/comments-client";
   document.querySelectorAll<HTMLElement>("[data-comments]").forEach((el) => {
     initCommentsSection(el);
   });

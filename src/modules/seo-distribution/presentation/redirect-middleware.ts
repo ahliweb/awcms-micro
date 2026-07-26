@@ -9,20 +9,22 @@
  * redirect can never intercept admin/API/auth/static/system paths, and this module
  * is where that guarantee is enforced before any tenant/rule lookup happens.
  *
- * `src/lib/seo/` importing a module's application code is the established pattern
- * for SEO composition roots (`discovery-route.ts` / `discovery-providers.ts`).
+ * A `presentation/` composition root importing its own module's application code
+ * is the established pattern for SEO delivery adapters (`discovery-route.ts` /
+ * `discovery-providers.ts`) — see ADR-0038 for why this layer lives inside the
+ * module instead of `src/lib/seo/`, where it used to sit.
  */
-import { getDatabaseClient } from "../database/client";
-import { withTenant } from "../database/tenant-context";
-import { log } from "../logging/logger";
-import { isRedirectEligiblePath } from "../../modules/seo-distribution/domain/redirect-eligibility";
+import { getDatabaseClient } from "../../../lib/database/client";
+import { withTenant } from "../../../lib/database/tenant-context";
+import { log } from "../../../lib/logging/logger";
+import { isRedirectEligiblePath } from "../domain/redirect-eligibility";
 import {
   resolvePublicRedirect,
   type NotFoundCaptureContext
-} from "../../modules/seo-distribution/application/redirect-resolution-service";
-import { recordNotFoundObservation } from "../../modules/seo-distribution/application/not-found-directory";
-import { extractReferrerDomain } from "../../modules/visitor-analytics/domain/referrer";
-import type { RedirectStatusCode } from "../../modules/seo-distribution/domain/redirect-rule";
+} from "../application/redirect-resolution-service";
+import { recordNotFoundObservation } from "../application/not-found-directory";
+import { extractReferrerDomain } from "../../visitor-analytics/domain/referrer";
+import type { RedirectStatusCode } from "../domain/redirect-rule";
 
 export type { NotFoundCaptureContext };
 

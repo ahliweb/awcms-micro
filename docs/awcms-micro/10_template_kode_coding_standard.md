@@ -102,12 +102,27 @@ src/modules/<module>/
 ├── infrastructure/
 │   ├── repository.ts
 │   └── mappers.ts
+├── presentation/            # opsional (ADR-0038)
+│   ├── discovery-providers.ts   # composition root rute
+│   └── comments-client.ts       # skrip klien browser
 ├── api/
 │   ├── routes.ts
 │   ├── schemas.ts
 │   └── handlers.ts
 └── README.md
 ```
+
+**`presentation/` vs `src/lib/` (ADR-0038).** `src/lib/` **hanya** berisi
+infrastruktur teknis yang tidak menyandang nama domain (`database`, `auth`,
+`cache`, `security`, `i18n`, …). Kode presentasi/pengiriman yang dimiliki sebuah
+modul — composition root rute (perakitan port + adapter), glue middleware yang
+mengubah keluaran data-polos service menjadi `Response`, dan skrip klien browser
+yang di-`import` dari `<script>` sebuah `.astro` — tinggal di
+`src/modules/<modul>/presentation/`, tidak pernah di `src/lib/<nama-modul>/`.
+Arahnya satu arah: `presentation` boleh mengimpor `application`/`domain` modulnya
+sendiri, adapter port modul lain, dan `src/lib`; `domain`/`application` tidak
+pernah mengimpor `presentation`. Gerbang `bun run modules:dag:check` menolak
+namespace `src/lib/<x>/` yang bertabrakan nama dengan sebuah `moduleKey`.
 
 ## Template Module Descriptor
 

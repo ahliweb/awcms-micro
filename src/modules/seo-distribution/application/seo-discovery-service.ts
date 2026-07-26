@@ -21,7 +21,7 @@
  *
  * NO cross-content-module import: the `SeoFactsSource[]` providers and the
  * `MediaLibraryPort` are plain parameters, wired at the route composition root
- * (`src/lib/seo/discovery-providers.ts`) — this module never imports a content
+ * (`src/modules/seo-distribution/presentation/discovery-providers.ts`) — this module never imports a content
  * module's internals (the `seo_facts` port is the only shared surface).
  *
  * Bounded by construction: the sitemap index sizes itself from a cheap

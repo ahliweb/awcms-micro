@@ -53,7 +53,7 @@ import { withTenant } from "../../src/lib/database/tenant-context";
 import { resetRateLimitStoreForTests } from "../../src/lib/security/rate-limit";
 
 // --- site_search ----------------------------------------------------------
-import { getRegisteredSearchSources } from "../../src/lib/search/search-sources";
+import { getRegisteredSearchSources } from "../../src/modules/site-search/presentation/search-sources";
 import { reconcileTenantSearchIndex } from "../../src/modules/site-search/application/search-index-engine";
 import { searchSiteContent } from "../../src/modules/site-search/application/search-service";
 
