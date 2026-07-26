@@ -65,4 +65,18 @@ const { id = "action-banner" } = Astro.props;
     );
     border: 1px solid var(--color-danger);
   }
+
+  /* `showBanner(..., "warning")` had no styling at all until Issue #369:
+     `admin/reporting/projections.astro` already passed "warning" for a
+     reconciliation mismatch, so that outcome rendered as an unstyled banner
+     indistinguishable from a neutral message. `--color-warning-strong` is the
+     AA-contrast pair for this tinted surface (doc 14 §Warna). */
+  .action-banner[data-variant="warning"] {
+    background: color-mix(
+      in srgb,
+      var(--color-warning) 15%,
+      var(--color-surface)
+    );
+    border: 1px solid var(--color-warning-strong);
+  }
 </style>

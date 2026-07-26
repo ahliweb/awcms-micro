@@ -151,7 +151,13 @@ if (CAN_READ) {
   }
 }
 
-function formatSize(bytes: number): string {
+// `sizeBytes` is nullable in the media-library row (an object registered
+// before its upload session completed has no measured size yet). The previous
+// `number`-only signature let `null` through untyped, and `null < 1024` is
+// TRUE in JS — the badge rendered a literal "null B" instead of an em dash
+// (found by `astro check`, Issue #369).
+function formatSize(bytes: number | null): string {
+  if (bytes === null) return "—";
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;

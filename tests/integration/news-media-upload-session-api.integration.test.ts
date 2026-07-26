@@ -565,7 +565,7 @@ suite("news media presigned upload session API (Issue #634)", () => {
       `) as { status: string }[];
       expect(row[0]!.status).toBe("failed");
     } finally {
-      fake.server.stop(true);
+      await fake.server.stop(true);
     }
   });
 
@@ -620,7 +620,7 @@ suite("news media presigned upload session API (Issue #634)", () => {
       hasher.update(REAL_JPEG_BYTES);
       expect(body.data.checksumSha256).toBe(hasher.digest("hex"));
     } finally {
-      fake.server.stop(true);
+      await fake.server.stop(true);
     }
   });
 
@@ -668,7 +668,7 @@ suite("news media presigned upload session API (Issue #634)", () => {
       };
       expect(body.error.details?.reason).toBe("object_not_found");
     } finally {
-      fake.server.stop(true);
+      await fake.server.stop(true);
     }
   });
 
@@ -717,7 +717,7 @@ suite("news media presigned upload session API (Issue #634)", () => {
       };
       expect(body.error.details?.reason).toBe("checksum_mismatch");
     } finally {
-      fake.server.stop(true);
+      await fake.server.stop(true);
     }
   });
 
@@ -776,7 +776,7 @@ suite("news media presigned upload session API (Issue #634)", () => {
       expect(second.status).toBe(200);
       expect(await second.json()).toEqual(await first.clone().json());
     } finally {
-      fake.server.stop(true);
+      await fake.server.stop(true);
     }
   });
 
@@ -847,7 +847,7 @@ suite("news media presigned upload session API (Issue #634)", () => {
       expect(second.status).toBe(422);
       expect(await second.json()).toEqual(await first.clone().json());
     } finally {
-      fake.server.stop(true);
+      await fake.server.stop(true);
     }
   });
 
@@ -958,7 +958,7 @@ suite("news media presigned upload session API (Issue #634)", () => {
       const secondBody = (await second.json()) as { data: { status: string } };
       expect(secondBody.data.status).toBe("verified");
     } finally {
-      flakyServer.stop(true);
+      await flakyServer.stop(true);
     }
   });
 });

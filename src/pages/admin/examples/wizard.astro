@@ -18,6 +18,7 @@ import AdminLayout from "../../../layouts/AdminLayout.astro";
 import WizardStepper from "../../../components/ui/WizardStepper.astro";
 import WizardPanel from "../../../components/ui/WizardPanel.astro";
 import WizardActions from "../../../components/ui/WizardActions.astro";
+import type { WizardStepDefinition } from "../../../lib/ui/wizard-client";
 import { createTranslator } from "../../../lib/i18n/translate";
 import { getDatabaseClient } from "../../../lib/database/client";
 import { withTenant } from "../../../lib/database/tenant-context";
@@ -41,10 +42,25 @@ if (!context) {
 
 const t = await createTranslator(Astro.locals.locale);
 
-const steps = [
-  { key: "basic", title: t("admin.examples.wizard.step_basic_title") },
-  { key: "details", title: t("admin.examples.wizard.step_details_title") },
-  { key: "review", title: t("admin.examples.wizard.step_review_title") }
+// Typed as the real contract so the SSR stepper and the client-side
+// `createWizardState(steps)` below cannot drift: `WizardStepDefinition`
+// requires `fields`, and the untyped literal silently omitted it (Issue #369).
+const steps: WizardStepDefinition[] = [
+  {
+    key: "basic",
+    title: t("admin.examples.wizard.step_basic_title"),
+    fields: ["title", "category"]
+  },
+  {
+    key: "details",
+    title: t("admin.examples.wizard.step_details_title"),
+    fields: ["notes"]
+  },
+  {
+    key: "review",
+    title: t("admin.examples.wizard.step_review_title"),
+    fields: []
+  }
 ];
 
 // Resume-on-load: SSR fetch via the application layer directly (same

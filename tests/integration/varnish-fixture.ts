@@ -54,7 +54,10 @@ function reserveEphemeralPort(): number {
   });
   const port = probe.port ?? 0;
 
-  probe.stop(true);
+  // Deliberately fire-and-forget: this helper is synchronous (it returns a
+  // port number), so it cannot await the close. `void` marks the discard as
+  // intentional for `@typescript-eslint/no-floating-promises`.
+  void probe.stop(true);
 
   if (port === 0) {
     throw new Error("could not reserve a TCP port for the cache container");
@@ -186,7 +189,7 @@ export async function startVarnish(
   const stderr = await new Response(run.stderr).text();
 
   if ((await run.exited) !== 0) {
-    backend.stop(true);
+    await backend.stop(true);
     await rm(workDirectory, { recursive: true, force: true });
 
     throw new Error(`docker run ${VARNISH_IMAGE} failed: ${stderr || stdout}`);
@@ -235,7 +238,7 @@ export async function startVarnish(
       stdout: "ignore",
       stderr: "ignore"
     });
-    backend.stop(true);
+    await backend.stop(true);
     await rm(workDirectory, { recursive: true, force: true });
 
     throw new Error(`${VARNISH_IMAGE} did not become reachable within 40s`);
@@ -253,7 +256,7 @@ export async function startVarnish(
         stdout: "ignore",
         stderr: "ignore"
       });
-      backend.stop(true);
+      await backend.stop(true);
       await rm(workDirectory, { recursive: true, force: true });
     }
   };

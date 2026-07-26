@@ -105,30 +105,57 @@ let duplicateCandidates: Awaited<ReturnType<typeof listDuplicateCandidates>> =
 
 if (CAN_READ) {
   try {
-    await withTenant(getDatabaseClient(), context.tenantId, async (tx) => {
-      const record = await fetchPartyById(tx, context.tenantId, profileId, {
-        includeDeleted: true
-      });
-      party = record ? toPartyMaskedAdminDTO(record) : null;
+    // Returned, not assigned from inside the closure — TypeScript cannot see a
+    // write performed in a callback, so the previous form left `party` narrowed
+    // to `null`/`never` through the whole template (Issue #369).
+    // `unavailableBehavior: "throw"` keeps a 503 `Response` from masquerading
+    // as the loaded tuple now that the return value is read as data (#323).
+    const loaded = await withTenant(
+      getDatabaseClient(),
+      context.tenantId,
+      async (tx) => {
+        const record = await fetchPartyById(tx, context.tenantId, profileId, {
+          includeDeleted: true
+        });
+        const loadedParty = record ? toPartyMaskedAdminDTO(record) : null;
 
-      if (party) {
-        identifiers = await listIdentifiers(tx, context.tenantId, profileId);
-        addresses = await listAddresses(tx, context.tenantId, profileId);
-        channels = await listChannels(tx, context.tenantId, profileId);
-        relationships = await listRelationshipsForProfile(
-          tx,
-          context.tenantId,
-          profileId
-        );
-        duplicateCandidates = await listDuplicateCandidates(
-          tx,
-          context.tenantId,
-          {
+        if (!loadedParty) {
+          return {
+            party: null,
+            identifiers: [],
+            addresses: [],
+            channels: [],
+            relationships: [],
+            duplicateCandidates: []
+          };
+        }
+
+        return {
+          party: loadedParty,
+          identifiers: await listIdentifiers(tx, context.tenantId, profileId),
+          addresses: await listAddresses(tx, context.tenantId, profileId),
+          channels: await listChannels(tx, context.tenantId, profileId),
+          relationships: await listRelationshipsForProfile(
+            tx,
+            context.tenantId,
             profileId
-          }
-        );
-      }
-    });
+          ),
+          duplicateCandidates: await listDuplicateCandidates(
+            tx,
+            context.tenantId,
+            { profileId }
+          )
+        };
+      },
+      { unavailableBehavior: "throw" }
+    );
+
+    party = loaded.party;
+    identifiers = loaded.identifiers;
+    addresses = loaded.addresses;
+    channels = loaded.channels;
+    relationships = loaded.relationships;
+    duplicateCandidates = loaded.duplicateCandidates;
   } catch (error) {
     logAdminPageError(
       "admin/profile-identity/[id].astro: failed to load party detail",

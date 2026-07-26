@@ -66,7 +66,7 @@ describe("createR2ObjectUploader", () => {
   });
 
   afterEach(async () => {
-    server.stop(true);
+    await server.stop(true);
     await rm(tmpDir, { recursive: true, force: true });
     resetProviderCircuitBreakersForTests();
   });

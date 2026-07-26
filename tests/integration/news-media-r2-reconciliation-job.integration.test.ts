@@ -341,7 +341,7 @@ suite("news media R2 lifecycle cleanup & reconciliation (Issue #690)", () => {
       expect(stillThere).not.toBeNull();
       expect(stillThere?.status).toBe("pending_upload");
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -388,7 +388,7 @@ suite("news media R2 lifecycle cleanup & reconciliation (Issue #690)", () => {
       // The object must still be physically present in R2 — never deleted.
       expect(has(objectKey)).toBe(true);
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -446,7 +446,7 @@ suite("news media R2 lifecycle cleanup & reconciliation (Issue #690)", () => {
         )
       ).toBe(true);
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -491,7 +491,7 @@ suite("news media R2 lifecycle cleanup & reconciliation (Issue #690)", () => {
       expect(unchanged?.status).toBe("verified");
       expect(unchanged?.deletedAt).toBeNull();
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -536,7 +536,7 @@ suite("news media R2 lifecycle cleanup & reconciliation (Issue #690)", () => {
       expect(softDeleted?.status).toBe("orphaned");
       expect(softDeleted?.deletedAt).not.toBeNull();
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -580,7 +580,7 @@ suite("news media R2 lifecycle cleanup & reconciliation (Issue #690)", () => {
       expect(result.healthyCount).toBe(5);
       expect(result.orphanInDb).toHaveLength(0);
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -611,9 +611,9 @@ suite("news media R2 lifecycle cleanup & reconciliation (Issue #690)", () => {
       expect(firstAttempt.r2ListFailed).toBe(true);
       expect(firstAttempt.r2ListError).toBeTruthy();
 
-      server.stop(true);
+      await server.stop(true);
     } catch (error) {
-      server.stop(true);
+      await server.stop(true);
       throw error;
     }
 
@@ -635,7 +635,7 @@ suite("news media R2 lifecycle cleanup & reconciliation (Issue #690)", () => {
 
       expect(retryAttempt.r2ListFailed).toBe(false);
     } finally {
-      healthyServer.server.stop(true);
+      await healthyServer.server.stop(true);
     }
   });
 
@@ -697,7 +697,7 @@ suite("news media R2 lifecycle cleanup & reconciliation (Issue #690)", () => {
       `) as { count: number }[];
       expect(tenants[0]?.count).toBeGreaterThanOrEqual(2);
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -751,7 +751,7 @@ suite("news media R2 lifecycle cleanup & reconciliation (Issue #690)", () => {
       );
       expect(orphanedRow?.deletedAt).toBeNull();
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -792,7 +792,7 @@ suite("news media R2 lifecycle cleanup & reconciliation (Issue #690)", () => {
       expect(second.staleOrphaned.total).toBe(0);
       expect(second.orphanInR2.deleted).toBe(0);
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 });

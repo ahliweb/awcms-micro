@@ -178,6 +178,29 @@ Piramida: banyak unit test di dasar, sedikit end-to-end di puncak; security & pe
 
 > **`blog_content` (epic #536) sebagai contoh nyata, bukan lagi ilustratif.** Berbeda dari target katalog/pesanan online di bawah (yang murni contoh ilustratif di repo ini), `blog_content` adalah modul domain yang benar-benar berjalan di repo base ini (ADR-0009) dan sudah punya test lengkap di `tests/integration/blog-content-*.integration.test.ts` (schema/RLS, admin API posts/pages/taxonomies/search, public routes, revisions, presentation extensions, dan admin-UI list/lookup functions — Issue #543). Jalankan `bun test tests/integration/blog-content-*.integration.test.ts` (butuh `DATABASE_URL`, lihat §Migration checklist) untuk suite khusus modul ini, atau `bun test` untuk seluruh suite termasuk yang lain.
 
+### Gerbang analisis statis (Issue #369)
+
+Di bawah piramida test ada dua gerbang statis. Keduanya wajib hijau dan keduanya sudah masuk `bun run check` + job "Quality" di CI:
+
+| Perintah                                  | Cakupan                                                                        | Yang TIDAK dicakup                                                                                 |
+| ----------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `bun run typecheck` (`tsc --noEmit`)      | `.ts` di `src/`, `scripts/`, `tests/`                                          | **`.astro` sama sekali** — `tsc` melewati ekstensi tak dikenal secara diam-diam, tanpa peringatan  |
+| `bun run typecheck:astro` (`astro check`) | frontmatter `.astro` **dan** isi `<script>` inline (≈19.2k baris kode browser) | tidak menjalankan aturan lint                                                                      |
+| `bun run lint`                            | `prettier --check` (format) **+ `eslint .`** (kebenaran)                       | type-aware rule tidak bisa jalan di dalam `<script>` inline — lihat catatan di `eslint.config.mjs` |
+
+Sebelum #369 lapisan `.astro` tidak diperiksa alat apa pun: `tsc` tak bisa mem-parse-nya, `bun run lint` hanya prettier, dan `@astrojs/check` belum terpasang. Angka saat gerbang dinyalakan pertama kali di `0a8c3ba5` (v1.1.0): **34 error `astro check`** (7 berkas), **49 error ESLint** (48 `no-floating-promises` + 1 `no-misused-promises`), semuanya sudah nol pada PR #369 kecuali daftar hutang di bawah.
+
+**Jebakan versi TypeScript.** `astro check` dan `typescript-eslint` sama-sama butuh **API programatik** TypeScript. `typescript@7` adalah kompiler native (Go) yang hanya mengekspor `version` — `astro check` gagal cepat dengan pesan eksplisit, dan `typescript-eslint` menuntut peer `>=4.8.4 <6.1.0`. Karena itu repo ini memakai `typescript@6.0.3`. Menaikkannya kembali ke 7.x akan mematikan kedua gerbang sekaligus; tunggu dukungan API-nya (withastro/roadmap#1321).
+
+**Daftar hutang eksplisit (harus MENYUSUT, bukan bertambah).** Aturan tidak pernah dilonggarkan secara global dan `@ts-ignore`/`any` tidak dipakai untuk lolos gerbang; pengecualian ditulis per berkas di `NO_MISUSED_PROMISES_EXEMPT` (`eslint.config.mjs`):
+
+- `src/lib/comments/comments-client.ts` — `@typescript-eslint/no-misused-promises`: listener `submit` bertipe `async` di tempat yang mengharapkan `void`; rejection-nya jadi unhandled rejection, bukan umpan balik ke pengguna.
+
+Aturan yang **belum** dinyalakan, dengan angka terukurnya (kandidat PR pembersihan tersendiri, bukan pelonggaran):
+
+- `@typescript-eslint/no-unnecessary-condition`: **87 temuan** di ~40 berkas (termasuk `tests/e2e/` dan modul yang sedang dikerjakan paralel) — terlalu bising untuk satu PR.
+- `js.configs.recommended` penuh pada `.ts`: **20 temuan** (`no-useless-assignment` ×5, `@typescript-eslint/no-unused-vars` ×7, `preserve-caught-error`, `no-irregular-whitespace`, `no-useless-escape`). Yang sudah dinyalakan dari set itu untuk `.ts` hanya `no-control-regex`.
+
 ### Unit test target
 
 - ABAC evaluator.

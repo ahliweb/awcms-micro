@@ -113,6 +113,7 @@ export function isRedirectEligiblePath(pathname: string): boolean {
   // Defensive: a control character / whitespace in the path is never a real page
   // request we should try to redirect (and would be rejected by normalization
   // anyway) — fail safe.
+  // eslint-disable-next-line no-control-regex -- rejecting NUL in a redirect path IS the purpose of this regex
   if (/[\u0000-\u0020\u007f]/.test(pathname)) {
     return false;
   }

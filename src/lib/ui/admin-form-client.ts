@@ -173,7 +173,7 @@ export async function fetchJson<TData = unknown>(
 export function showBanner(
   bannerId: string,
   message: string,
-  variant: "success" | "error"
+  variant: "success" | "error" | "warning"
 ): void {
   const banner = document.getElementById(bannerId);
   if (!banner) return;

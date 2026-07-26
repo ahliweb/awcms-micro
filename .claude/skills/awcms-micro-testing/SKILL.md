@@ -47,6 +47,21 @@ Konvensi nyata repo ini (bukan sub-folder per domain): file **flat** langsung di
 - Setiap fitur baru minimal punya unit test logic + satu integration/contract test.
 - Test tenant-scoped memakai tenant context; jangan bergantung data global.
 
+## Gerbang analisis statis (Issue #369)
+
+Test bukan satu-satunya jaring. Sebelum PR jalankan juga ketiganya (semuanya bagian `bun run check` + job "Quality"):
+
+- `bun run typecheck` — `tsc --noEmit`. **Tidak menyentuh `.astro` sama sekali**; ekstensi tak dikenal dilewati diam-diam meski ada di `include`.
+- `bun run typecheck:astro` — `astro check`. Satu-satunya gerbang yang mengetik-periksa frontmatter `.astro` **dan** isi `<script>` inline (≈19.2k baris kode browser). Kalau kamu menyunting `.astro`, gerbang inilah yang relevan.
+- `bun run lint` — `prettier --check` (format) **+ `eslint .`** (kebenaran: `no-floating-promises`, `no-misused-promises`, `no-control-regex`).
+
+Yang perlu diketahui saat menulis kode:
+
+- Type-aware ESLint **tidak berjalan di dalam `<script>` inline** (berkas virtual `page.astro/1_1.ts` tidak ada di program tsconfig mana pun). Yang jalan di sana hanya aturan sintaks; keamanan tipe skrip browser datang dari `astro check`.
+- `@typescript-eslint/no-misused-promises` **crash** pada frontmatter `.astro`, jadi sengaja tidak aktif untuk `.astro`.
+- Jangan pakai `@ts-ignore`/`any`/pelonggaran global untuk melewati gerbang. Kalau sebuah berkas belum bisa diperbaiki, tambahkan ke daftar pengecualian per-berkas di `eslint.config.mjs` (`NO_MISUSED_PROMISES_EXEMPT`) beserta alasannya, dan catat di doc 07 §Gerbang analisis statis — daftar itu harus menyusut.
+- Pola SSR yang sering memicu error `astro check`: `let x: T | null = null` lalu ditulisi **dari dalam callback** `withTenant` — analisis alur TypeScript tidak melihat penulisan itu, `x` menyempit jadi `never` di seluruh template. Kembalikan nilainya sebagai **return value** callback (dan wajib `{ unavailableBehavior: "throw" }`, lihat AGENTS.md #8).
+
 ## Gotcha integration test (real-handler, `tests/integration/*.integration.test.ts`)
 
 Dari #271/#272/#273 (harness `tests/integration/harness.ts`) — hemat re-investigasi:

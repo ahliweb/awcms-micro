@@ -243,8 +243,8 @@ describe("createCloudflareDnsProvider", () => {
     });
   });
 
-  afterEach(() => {
-    server.stop(true);
+  afterEach(async () => {
+    await server.stop(true);
     resetProviderCircuitBreakersForTests();
   });
 
@@ -384,7 +384,7 @@ describe("createCloudflareDnsProvider", () => {
     // A fresh server/provider pair whose GET response echoes a CNAME value
     // with different case and a trailing dot, to prove comparison
     // normalizes both before matching.
-    server.stop(true);
+    await server.stop(true);
     server = Bun.serve({
       port: 0,
       fetch(request) {

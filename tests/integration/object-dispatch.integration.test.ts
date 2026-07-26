@@ -198,7 +198,7 @@ suite("Object sync queue dispatcher (real Postgres)", () => {
       expect(row.status).toBe("sent");
       expect(row.uploaded_at).not.toBeNull();
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -318,7 +318,7 @@ suite("Object sync queue dispatcher (real Postgres)", () => {
       expect(finalRow.status).toBe("sent");
       expect(finalRow.uploaded_at).not.toBeNull();
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -369,7 +369,7 @@ suite("Object sync queue dispatcher (real Postgres)", () => {
       expect(second).toMatchObject({ claimed: 0, sent: 0 });
       expect(requestCount).toBe(1);
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -452,7 +452,7 @@ suite("Object sync queue dispatcher (real Postgres)", () => {
       const local = await fetchQueueRow("receipts/breaker-local.pdf");
       expect(local.status).toBe("sent");
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 });

@@ -188,8 +188,8 @@ describe("Telegram channel provider adapter", () => {
     });
   });
 
-  afterEach(() => {
-    server.stop(true);
+  afterEach(async () => {
+    await server.stop(true);
     if (originalEnabled === undefined)
       delete process.env.TELEGRAM_PROVIDER_ENABLED;
     else process.env.TELEGRAM_PROVIDER_ENABLED = originalEnabled;
@@ -342,7 +342,7 @@ describe("Telegram channel provider adapter", () => {
     // ever reaching the actual internet.
     const deadServer = Bun.serve({ port: 0, fetch: () => new Response("") });
     const deadPort = deadServer.port;
-    deadServer.stop(true);
+    await deadServer.stop(true);
 
     const adapter = createTelegramChannelProviderAdapter({
       apiBaseUrl: `http://127.0.0.1:${deadPort}`
