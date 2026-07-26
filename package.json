@@ -37,6 +37,7 @@
     "preview": "bun --bun astro preview",
     "start": "bun ./dist/server/entry.mjs",
     "db:migrate": "bun scripts/db-migrate.ts",
+    "bootstrap:default-tenant": "bun scripts/bootstrap-default-tenant.ts",
     "api:spec:check": "bun scripts/api-spec-check.ts",
     "openapi:bundle": "bun scripts/openapi-bundle.ts",
     "api:docs:generate": "bun scripts/api-docs-generate.ts",

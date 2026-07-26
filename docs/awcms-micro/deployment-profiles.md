@@ -638,6 +638,43 @@ tambahan ini murni defense-in-depth opsional. Lihat
 dan `sql/045_awcms_micro_db_role_separation.sql`'s header untuk detail
 lengkap.
 
+## Tenant default dan owner yang sama di setiap fase (`bun run bootstrap:default-tenant`)
+
+Audit tiga fase (2026-07-26) menemukan development, staging, dan production
+cocok hanya karena kebetulan: production punya tenant `default` dengan owner
+`admin@ahlikoding.com`, staging punya `staging` dengan
+`owner@staging.ahlikoding.com`, dan development tidak punya jalur seed sama
+sekali — instance lokal seorang developer adalah apa pun yang dia ketik di
+setup wizard.
+
+Bagian "akses penuh" tidak pernah berisiko: `bootstrapPlatformTenant()`
+memberi role `owner` **seluruh baris** `awcms_micro_permissions`, jadi
+permission yang ditambahkan migration berikutnya ikut otomatis. Yang rapuh
+adalah identitas dan kode tenant — keduanya murni konvensi sampai perintah
+ini ada.
+
+```bash
+BOOTSTRAP_OWNER_PASSWORD='…' bun run bootstrap:default-tenant
+```
+
+Sifatnya idempoten dan tidak merusak:
+
+| Keadaan                         | Tanpa `--repair`                  | Dengan `--repair`                     |
+| ------------------------------- | --------------------------------- | ------------------------------------- |
+| Database kosong                 | dibuat (`initialized`)            | sama                                  |
+| Sudah sesuai                    | `already_conformant`              | sama                                  |
+| Owner yang diharapkan tidak ada | `needs_repair`, exit 1            | identitas ditambah + role akses-penuh |
+| Role kurang permission          | `needs_repair`, exit 1            | ditambal ke seluruh katalog           |
+| **Kode tenant berbeda**         | `needs_operator_decision`, exit 1 | **tetap ditolak**                     |
+
+Baris terakhir disengaja: kode tenant muncul di URL publik
+`/blog/{tenantCode}` (ADR-0009), jadi mengubahnya memutus tautan yang sudah
+tersebar. Itu keputusan routing milik operator, bukan efek samping sebuah
+perintah bootstrap.
+
+Password dibaca **hanya** dari `BOOTSTRAP_OWNER_PASSWORD`. Sengaja bukan
+flag CLI: flag terbaca oleh proses lokal mana pun lewat daftar proses.
+
 ## Validasi konfigurasi sebelum boot (`bun run config:validate`)
 
 Doc 18 §Prinsip konfigurasi #5: "Konfigurasi tervalidasi saat boot; nilai
