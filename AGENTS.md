@@ -278,6 +278,7 @@ bun run build                    # bun --bun astro build
 bun run preview                  # bun --bun astro preview
 bun run start                    # bun ./dist/server/entry.mjs (SSR di atas Bun)
 bun run db:migrate               # Bun.SQL PostgreSQL migration runner
+bun run bootstrap:default-tenant  # idempoten: tenant `default` + owner akses-penuh yang SAMA di development/staging/production; password hanya dari BOOTSTRAP_OWNER_PASSWORD (bukan flag — flag terlihat di daftar proses). Tanpa `--repair` hanya melapor; kode tenant berbeda TIDAK pernah ditulis ulang (muncul di URL `/blog/{tenantCode}`)
 bun run api:spec:check           # validasi OpenAPI/AsyncAPI baseline (route parity, operationId unik, path parameter, standard error schema, security metadata, bundle freshness)
 bun run openapi:bundle           # generate openapi/awcms-micro-public-api.openapi.yaml dari fragment openapi/awcms-micro-public-api.src.yaml + openapi/modules/*.yaml (Issue #695) — jalankan sebelum commit tiap kali fragment sumber berubah
 bun run api:docs:generate        # generate docs/awcms-micro/api-reference.md (referensi API & event manusiawi) dari kontrak OpenAPI/AsyncAPI ter-bundle (Issue #700) — jalankan sebelum commit tiap kali kontrak ter-bundle berubah

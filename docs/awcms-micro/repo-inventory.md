@@ -142,15 +142,15 @@ No gap found: every tenant-scoped table has an `ENABLE ROW LEVEL SECURITY` state
 
 ## Tests
 
-376 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
+378 test files under `tests/` (`*.test.ts`, `*.test.mjs`, `*.e2e.ts`).
 
 | Directory     | Test files |
 | ------------- | ---------- |
 | `(root)`      | 46         |
 | `e2e`         | 22         |
-| `integration` | 117        |
+| `integration` | 118        |
 | `modules`     | 5          |
-| `unit`        | 186        |
+| `unit`        | 187        |
 
 ## Routes / Operations (summary)
 

@@ -57,4 +57,18 @@ Dari #271/#272/#273 (harness `tests/integration/harness.ts`) — hemat re-invest
 - **Rate-limit bucket bersama**: `resolveClientIp` kembali `"unknown"` tanpa `X-Forwarded-For`/`clientAddress` → SEMUA call in-process berbagi SATU bucket (fixed window 1 jam). Suite apa pun yang memukul route ber-rate-limit (mis. `POST /newsletter/subscribe`, cap 30) WAJIB `resetRateLimitStoreForTests()` (dari `src/lib/security/rate-limit`) di `beforeEach`, atau flake 429 di belakang suite lain yang menembak route sama.
 - **Tenant bare vs setup-wizard**: tenant yang di-seed langsung (tanpa wizard) TIDAK lolos gate route publik blog/news (`isLegacyTenantRouteEnabled`, `checkBlogContentAndRouteGate`). Render publik POSITIF harus bootstrap via wizard; tenant bare hanya untuk assertion NEGATIF (404/absen) + surface service-level (site_search/comments/newsletter/seo redirect+sitemap) yang lewati gate. Lock singleton = tabel `awcms_micro_setup_state` saja, bukan keberadaan tenant.
 - **Flaky Quality**: kaskade ~20 suite tak-terkait yang timeout serempak `5000–5001ms` = kontensi/saturasi pool, BUKAN bug logika. Perubahan test-only string tak mungkin menyebabkannya. Ambil data point kedua (`gh run rerun <id> --failed`) sebelum menyalahkan diff.
-- `DATABASE_URL` di sandbox lokal sering tak reachable (host→container diblokir) → integration/E2E hanya jalan di CI; verifikasi lokal: `bunx tsc --noEmit` + prettier, lalu andalkan CI. Reproduksi SQL cepat via `docker exec <pg-container> psql`.
+- **Integration test BISA jalan lokal — catatan lama "hanya jalan di CI" itu keliru** (dikoreksi 2026-07-26 setelah seluruh suite dijalankan lokal, 4829 pass). Yang diblokir sandbox adalah **port publish** (`-p 55432:5432` → koneksi menggantung), bukan Docker-nya. Pakai `--network host` + `PGPORT` sendiri:
+
+  ```bash
+  docker run -d --name pg-test --network host \
+    -e POSTGRES_PASSWORD=test -e POSTGRES_DB=awcms_test -e PGPORT=55445 postgres:18.4
+  export DATABASE_URL="postgres://postgres:test@127.0.0.1:55445/awcms_test"
+  bun run db:migrate && bun test
+  ```
+
+  Ini penting karena tanpa `DATABASE_URL` ~1000 test dilewati **diam-diam** — `bun test` hijau lokal bisa berarti seluruh lapisan integrasi tidak pernah dijalankan.
+
+- **Suite yang butuh layanan nyata harus gagal keras di CI, bukan skip.** Pola di `tests/integration/varnish-fixture.ts`: skip bila Docker tidak ada (supaya laptop tetap hijau), tapi CI menyetel `EDGE_CACHE_VARNISH_TEST=1` yang mengubah "tidak bisa jalan" menjadi **gagal**. Suite yang menjaga sebuah transport tidak boleh lulus dengan cara tidak dijalankan.
+- **Uji balik test-nya sendiri sebelum percaya.** Setelah menulis suite yang menjaga sesuatu, rusak dulu kode yang dijaganya dan pastikan suite itu MERAH. Praktik ini menangkap dua hal nyata di #363/#364: transport lama dikembalikan → 4 dari 8 gagal; pemanggilan invalidasi dilepas dari rute `publish` → 3 dari 6 gagal. Test yang belum pernah terbukti bisa gagal tidak lebih baik dari test yang di-mock.
+- **Mock tidak bisa menjaga lapisan yang di-mock.** Unit test men-stub `fetch`, jadi bug transport (`fetch` Bun menulis ulang metode tak dikenal menjadi `GET`) mustahil tertangkap di sana — hanya layanan sungguhan yang bisa. Kalau sebuah cacat hidup di seam antar-komponen, ujilah seam itu, bukan komponennya.
+- Reproduksi SQL cepat tetap via `docker exec <pg-container> psql` (pakai `-i` bila memberi input lewat stdin — tanpanya psql membaca kosong lalu exit 0).

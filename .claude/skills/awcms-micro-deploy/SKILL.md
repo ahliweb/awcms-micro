@@ -56,10 +56,20 @@ syntax error/env var yang tidak resolve sampai lolos ke deploy.
 ## Command inti (semua profil)
 
 ```bash
-bun run config:validate      # wajib pertama — konfigurasi valid sebelum apa pun
-bun run db:migrate           # migrasi sebagai role privileged, sebelum container app pertama
-bun run production:preflight # orkestrasi migrate -> api:spec:check -> test -> build -> db:pool:health -> security:readiness
+bun run config:validate           # wajib pertama — konfigurasi valid sebelum apa pun
+bun run db:migrate                # migrasi sebagai role privileged, sebelum container app pertama
+bun run bootstrap:default-tenant  # tenant `default` + owner akses-penuh yang SAMA di tiap fase
+bun run production:preflight      # orkestrasi migrate -> api:spec:check -> test -> build -> db:pool:health -> security:readiness
 ```
+
+`bootstrap:default-tenant` menggantikan "buka setup wizard lalu ketik apa
+saja". Audit tiga fase (2026-07-26) menemukan mereka cocok hanya karena
+kebetulan — production `default`/`admin@ahlikoding.com`, staging
+`staging`/`owner@staging.ahlikoding.com`, development tidak ada seed sama
+sekali. Perintah ini idempoten; tanpa `--repair` ia hanya melapor, dan kode
+tenant yang berbeda **tidak pernah** ditulis ulang karena muncul di URL
+publik `/blog/{tenantCode}` (ADR-0009). Password hanya dari
+`BOOTSTRAP_OWNER_PASSWORD`, bukan flag — flag terbaca di daftar proses.
 
 ## Checklist per topologi
 
@@ -140,9 +150,15 @@ menurunkannya dengan histeresis. Jangan menjanjikan ke operator bahwa
 container-nya menyala sendiri — itu tidak benar.
 
 Sebelum menyebut deployment ini "ter-cache", jalankan
-`bun run edge-cache:health` (gagal bila endpoint BAN menerima purge tanpa
+`bun run edge-cache:health` (gagal bila endpoint ban menerima purge tanpa
 token) dan buktikan `X-Cache: MISS` lalu `HIT` pada permintaan kedua.
-Detail lengkap: `docs/awcms-micro/edge-cache-varnish.md`.
+
+`health` hanya bisa mengatakan endpoint invalidasi **menjawab** — ia tidak
+bisa mengatakan purge benar-benar membuang sesuatu, dan selama dua rilis
+memang tidak (Issue #359/#361). Untuk itu ada
+`bun run edge-cache:verify -- --url=https://<domain>/`: hangatkan sampai
+`HIT`, purge, wajib `MISS`. Jalankan itu setelah setiap deploy yang
+memasang cache. Detail lengkap: `docs/awcms-micro/edge-cache-varnish.md`.
 
 ## Rollback
 

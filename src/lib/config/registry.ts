@@ -227,6 +227,17 @@ export const CONFIG_REGISTRY: readonly ConfigVarEntry[] = [
     validatorGroup: "checkRequiredVars"
   },
   {
+    name: "BOOTSTRAP_OWNER_PASSWORD",
+    type: "string",
+    required: "conditional",
+    ownerModule: "tenant-admin",
+    sensitivity: "secret",
+    profiles: ALL_PROFILES,
+    description:
+      "Owner password used by `bun run bootstrap:default-tenant` (min 8 chars, same as the setup wizard). Read ONLY from the environment — never a CLI flag, which would expose it in the process list. Unused at runtime.",
+    validatorGroup: undefined
+  },
+  {
     name: "AWCMS_MICRO_APP_DB_PASSWORD",
     type: "string",
     required: "optional",
