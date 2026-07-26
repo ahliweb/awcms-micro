@@ -180,19 +180,35 @@ Piramida: banyak unit test di dasar, sedikit end-to-end di puncak; security & pe
 
 ### Gerbang analisis statis (Issue #369)
 
-Di bawah piramida test ada dua gerbang statis. Keduanya wajib hijau dan keduanya sudah masuk `bun run check` + job "Quality" di CI:
+Di bawah piramida test ada tiga gerbang statis. Semuanya wajib hijau dan sudah masuk `bun run check` + job "Quality" di CI:
 
-| Perintah                                  | Cakupan                                                                        | Yang TIDAK dicakup                                                                                 |
-| ----------------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| `bun run typecheck` (`tsc --noEmit`)      | `.ts` di `src/`, `scripts/`, `tests/`                                          | **`.astro` sama sekali** — `tsc` melewati ekstensi tak dikenal secara diam-diam, tanpa peringatan  |
-| `bun run typecheck:astro` (`astro check`) | frontmatter `.astro` **dan** isi `<script>` inline (≈19.2k baris kode browser) | tidak menjalankan aturan lint                                                                      |
-| `bun run lint`                            | `prettier --check` (format) **+ `eslint .`** (kebenaran)                       | type-aware rule tidak bisa jalan di dalam `<script>` inline — lihat catatan di `eslint.config.mjs` |
+| Perintah                                  | Kompiler                             | Cakupan                                                                          | Yang TIDAK dicakup                                                                                                                 |
+| ----------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `bun run typecheck` (`tsc --noEmit`)      | TypeScript **7** (root)              | 100% `.ts` di `src/`, `scripts/`, `tests/`                                       | **`.astro` sama sekali** — `tsc` melewati ekstensi tak dikenal secara diam-diam, tanpa peringatan                                  |
+| `bun run typecheck:astro` (`astro check`) | TypeScript **6** (karantina)         | frontmatter `.astro` **dan** isi `<script>` inline (≈19,2k baris kode browser)   | tidak menjalankan aturan lint                                                                                                      |
+| `bun run lint`                            | prettier (root) + ESLint (karantina) | format seluruh repo + kebenaran `.ts` (type-aware) dan blok `<script>` (sintaks) | type-aware rule tidak bisa jalan di dalam `<script>` maupun frontmatter `.astro` — lihat `tools/static-analysis/eslint.config.mjs` |
 
-Sebelum #369 lapisan `.astro` tidak diperiksa alat apa pun: `tsc` tak bisa mem-parse-nya, `bun run lint` hanya prettier, dan `@astrojs/check` belum terpasang. Angka saat gerbang dinyalakan pertama kali di `0a8c3ba5` (v1.1.0): **34 error `astro check`** (7 berkas), **49 error ESLint** (48 `no-floating-promises` + 1 `no-misused-promises`), semuanya sudah nol pada PR #369 kecuali daftar hutang di bawah.
+Sebelum #369 lapisan `.astro` tidak diperiksa alat apa pun: `tsc` tak bisa mem-parse-nya, `bun run lint` hanya prettier, dan `@astrojs/check` belum terpasang. Angka saat gerbang dinyalakan pertama kali di `0a8c3ba5` (v1.1.0): **34 error `astro check`** (7 berkas) dan **49 error ESLint** (48 `no-floating-promises` + 1 `no-misused-promises`) — semuanya nol pada PR #369 kecuali daftar hutang di bawah.
 
-**Jebakan versi TypeScript.** `astro check` dan `typescript-eslint` sama-sama butuh **API programatik** TypeScript. `typescript@7` adalah kompiler native (Go) yang hanya mengekspor `version` — `astro check` gagal cepat dengan pesan eksplisit, dan `typescript-eslint` menuntut peer `>=4.8.4 <6.1.0`. Karena itu repo ini memakai `typescript@6.0.3`. Menaikkannya kembali ke 7.x akan mematikan kedua gerbang sekaligus; tunggu dukungan API-nya (withastro/roadmap#1321).
+#### Kenapa ada DUA kompiler TypeScript
 
-**Daftar hutang eksplisit (harus MENYUSUT, bukan bertambah).** Aturan tidak pernah dilonggarkan secara global dan `@ts-ignore`/`any` tidak dipakai untuk lolos gerbang; pengecualian ditulis per berkas di `NO_MISUSED_PROMISES_EXEMPT` (`eslint.config.mjs`):
+`astro check` dan `typescript-eslint` sama-sama butuh **API programatik** TypeScript. `typescript@7` adalah kompiler native (Go): `exports["."]`-nya hanya `./lib/version.cjs`, sisanya di balik `./unstable/*`, dan `bin` cuma pembungkus biner. Jadi `astro check` gagal cepat dengan pesan eksplisit, dan `typescript-eslint` menuntut peer `>=4.8.4 <6.1.0`.
+
+Menurunkan kompiler root demi tooling adalah arah yang salah — `tsc --noEmit` memeriksa **100%** pohon `.ts` (seluruh `src/lib`, `src/modules`, `scripts`, `tests`), sementara `astro check` hanya menyentuh `.astro`. Karena itu toolchain yang terikat TS 6 **dikarantina**:
+
+- root `package.json` tetap `typescript ^7.0.2`;
+- `tools/static-analysis/` punya `package.json` + `node_modules` + lockfile sendiri berisi `@astrojs/check`, `eslint`, `typescript-eslint`, `eslint-plugin-astro`, dan `typescript` **6.0.3** (pin eksak). Ia sengaja BUKAN anggota workspace Bun, supaya TS 6 tidak ter-hoist ke root;
+- binernya dijalankan oleh `scripts/static-analysis.ts` dengan **cwd = root repo**, sehingga masing-masing me-resolve TypeScript dari pohonnya sendiri.
+
+Buktikan pembagiannya kapan saja: `bun run static-analysis:versions` (harus mencetak root 7.0.2 dan quarantine 6.0.3). Instalasinya: `bun run static-analysis:install`.
+
+**Batas divergensi.** Kedua kompiler memeriksa himpunan berkas yang **berbeda**, bukan berkas yang sama dua kali: `.ts` diperiksa TS 7, `.astro` diperiksa TS 6. Satu-satunya permukaan yang hanya terlihat oleh TS 6 adalah isi berkas `.astro` — dan Issue #372 sedang mengecilkan permukaan itu dengan memindahkan logika `<script>` inline ke modul `.ts` yang diperiksa TS 7. Semakin kecil permukaannya, semakin kecil risiko divergensi versi.
+
+**Kapan karantina dicabut.** Tidak perlu diingat: `bun run static-analysis:quarantine:check` membaca `peerDependencies.typescript` dari paket toolchain yang TERPASANG dan **gagal** begitu ada yang menerima TypeScript 7 — sinyal bahwa workaround-nya sudah bisa dihapus. Offline dan deterministik, ikut `bun run check` + CI. Lacak upstream di withastro/roadmap#1321.
+
+**Kenapa runner-nya memaksa asersi cakupan.** Semua mode gagal yang ditemukan saat membangun gerbang ini SUNYI, bukan berisik: flat config yang memakai `basePath` saat ESLint dijalankan dari direktori terisolasi me-lint ~1 berkas lalu exit 0 tanpa pesan apa pun; error yang dilempar saat me-lint blok `<script>` virtual **ditelan** ESLint yang tetap exit 0; dan `tsc` melewati `.astro` tanpa suara. Karena itu `scripts/static-analysis.ts` menghitung berkas sumber yang ada dan **gagal** bila alatnya hanya menyentuh <90% darinya — "scanned > 0" saja tidak cukup (varian `basePath` terukur me-lint tepat 1 berkas). Repo ini sudah dua kali membayar kelas bug ini (#359/#361).
+
+**Daftar hutang eksplisit (harus MENYUSUT, bukan bertambah).** Aturan tidak pernah dilonggarkan secara global dan `@ts-ignore`/`any` tidak dipakai untuk lolos gerbang; pengecualian ditulis per berkas di `NO_MISUSED_PROMISES_EXEMPT` (`tools/static-analysis/eslint.config.mjs`):
 
 - `src/lib/comments/comments-client.ts` — `@typescript-eslint/no-misused-promises`: listener `submit` bertipe `async` di tempat yang mengharapkan `void`; rejection-nya jadi unhandled rejection, bukan umpan balik ke pengguna.
 
@@ -200,6 +216,7 @@ Aturan yang **belum** dinyalakan, dengan angka terukurnya (kandidat PR pembersih
 
 - `@typescript-eslint/no-unnecessary-condition`: **87 temuan** di ~40 berkas (termasuk `tests/e2e/` dan modul yang sedang dikerjakan paralel) — terlalu bising untuk satu PR.
 - `js.configs.recommended` penuh pada `.ts`: **20 temuan** (`no-useless-assignment` ×5, `@typescript-eslint/no-unused-vars` ×7, `preserve-caught-error`, `no-irregular-whitespace`, `no-useless-escape`). Yang sudah dinyalakan dari set itu untuk `.ts` hanya `no-control-regex`.
+- `@typescript-eslint/no-floating-promises` pada **frontmatter `.astro`**: mustahil selama karantina berlaku — `astro-eslint-parser` me-resolve `typescript` dari `process.cwd()` (= root repo = TS 7) saat membangun program tipe, sehingga type-aware linting untuk `.astro` mati sampai upstream mendukung TS 7. `astro check` tetap mengetik-periksa frontmatter itu sepenuhnya.
 
 ### Unit test target
 

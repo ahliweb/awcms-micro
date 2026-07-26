@@ -52,14 +52,17 @@ Konvensi nyata repo ini (bukan sub-folder per domain): file **flat** langsung di
 Test bukan satu-satunya jaring. Sebelum PR jalankan juga ketiganya (semuanya bagian `bun run check` + job "Quality"):
 
 - `bun run typecheck` — `tsc --noEmit`. **Tidak menyentuh `.astro` sama sekali**; ekstensi tak dikenal dilewati diam-diam meski ada di `include`.
-- `bun run typecheck:astro` — `astro check`. Satu-satunya gerbang yang mengetik-periksa frontmatter `.astro` **dan** isi `<script>` inline (≈19.2k baris kode browser). Kalau kamu menyunting `.astro`, gerbang inilah yang relevan.
-- `bun run lint` — `prettier --check` (format) **+ `eslint .`** (kebenaran: `no-floating-promises`, `no-misused-promises`, `no-control-regex`).
+- `bun run typecheck:astro` — `astro check`. Satu-satunya gerbang yang mengetik-periksa frontmatter `.astro` **dan** isi `<script>` inline (≈19,2k baris kode browser). Kalau kamu menyunting `.astro`, gerbang inilah yang relevan.
+- `bun run lint` — `prettier --check` (format) **+ ESLint** (kebenaran: `no-floating-promises`, `no-misused-promises`, `no-control-regex`).
+
+**Dua kompiler TypeScript, sengaja.** Root tetap `typescript@7` (native) dan memeriksa 100% `.ts` lewat `tsc --noEmit`. `astro check` + `typescript-eslint` masih butuh API programatik TypeScript yang TS 7 tidak punya, jadi keduanya dikarantina di `tools/static-analysis/` dengan `node_modules` sendiri berisi `typescript@6.0.3`, dijalankan oleh `scripts/static-analysis.ts` dengan cwd = root repo. Sebelum menjalankan gerbangnya: `bun run static-analysis:install`. Buktikan pembagiannya: `bun run static-analysis:versions`.
 
 Yang perlu diketahui saat menulis kode:
 
-- Type-aware ESLint **tidak berjalan di dalam `<script>` inline** (berkas virtual `page.astro/1_1.ts` tidak ada di program tsconfig mana pun). Yang jalan di sana hanya aturan sintaks; keamanan tipe skrip browser datang dari `astro check`.
+- Type-aware ESLint **tidak berjalan di dalam `<script>` inline** (berkas virtual `page.astro/1_1.ts` tidak ada di program tsconfig mana pun) **maupun di frontmatter `.astro`** (`astro-eslint-parser` me-resolve `typescript` dari cwd = root = TS 7). Di sana yang jalan hanya aturan sintaks; keamanan tipe `.astro` sepenuhnya datang dari `astro check`.
 - `@typescript-eslint/no-misused-promises` **crash** pada frontmatter `.astro`, jadi sengaja tidak aktif untuk `.astro`.
-- Jangan pakai `@ts-ignore`/`any`/pelonggaran global untuk melewati gerbang. Kalau sebuah berkas belum bisa diperbaiki, tambahkan ke daftar pengecualian per-berkas di `eslint.config.mjs` (`NO_MISUSED_PROMISES_EXEMPT`) beserta alasannya, dan catat di doc 07 §Gerbang analisis statis — daftar itu harus menyusut.
+- Kalau sebuah gerbang tiba-tiba hijau setelah kamu mengubah konfigurasinya, curigai gerbang MATI: `scripts/static-analysis.ts` menolak hasil yang menyentuh <90% pohon sumber justru karena kegagalan di area ini sunyi (ESLint menelan error blok `<script>` dan tetap exit 0).
+- Jangan pakai `@ts-ignore`/`any`/pelonggaran global untuk melewati gerbang. Kalau sebuah berkas belum bisa diperbaiki, tambahkan ke daftar pengecualian per-berkas di `tools/static-analysis/eslint.config.mjs` (`NO_MISUSED_PROMISES_EXEMPT`) beserta alasannya, dan catat di doc 07 §Gerbang analisis statis — daftar itu harus menyusut.
 - Pola SSR yang sering memicu error `astro check`: `let x: T | null = null` lalu ditulisi **dari dalam callback** `withTenant` — analisis alur TypeScript tidak melihat penulisan itu, `x` menyempit jadi `never` di seluruh template. Kembalikan nilainya sebagai **return value** callback (dan wajib `{ unavailableBehavior: "throw" }`, lihat AGENTS.md #8).
 
 ## Gotcha integration test (real-handler, `tests/integration/*.integration.test.ts`)
