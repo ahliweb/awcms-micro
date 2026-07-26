@@ -27,6 +27,7 @@ import {
  */
 
 /** XML-1.0-illegal C0 control chars (everything U+0000–U+001F except TAB/LF/CR). */
+// eslint-disable-next-line no-control-regex -- the fixture deliberately contains XML-illegal control chars
 const XML_ILLEGAL_C0 = /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/;
 
 /**

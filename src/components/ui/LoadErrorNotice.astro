@@ -1,0 +1,53 @@
+---
+/**
+ * LoadErrorNotice — the standard "we couldn't load this right now" branch
+ * (Issue #372).
+ *
+ * `StateNotice.astro` (Issue #434) generalized the *markup* of the
+ * denied/error/info banners, but every caller of its `error` kind still
+ * repeats the same four translated props verbatim:
+ *
+ * ```astro
+ * <StateNotice
+ *   kind="error"
+ *   title={t("common.error_title")}
+ *   body={t("common.error_body")}
+ *   retryLabel={t("common.retry")}
+ *   retryHref={Astro.url.pathname}
+ * />
+ * ```
+ *
+ * Measured on `0a8c3ba5`: **38 of 51** admin pages contain exactly that,
+ * with `retryHref={Astro.url.pathname}` (reload this same screen) — only
+ * three pass a different retry target, which is why `retryHref` stays a
+ * prop. The three translated strings are `common.*` keys shared by all of
+ * them, so this component resolves them itself instead of making every
+ * caller thread `t` through.
+ *
+ * The rendered DOM is identical to the hand-authored block it replaces
+ * (`.state-notice[data-kind="error"]`), so E2E specs and axe scans that
+ * select on it are unaffected.
+ */
+import StateNotice from "./StateNotice.astro";
+import { createTranslator } from "../../lib/i18n/translate";
+
+interface Props {
+  /** Where the retry link points. Defaults to the current page. */
+  retryHref?: string;
+  /** Override the standard `common.error_title` heading. */
+  title?: string;
+  /** Override the standard `common.error_body` copy. */
+  body?: string;
+}
+
+const { retryHref = Astro.url.pathname, title, body } = Astro.props;
+const t = await createTranslator(Astro.locals.locale);
+---
+
+<StateNotice
+  kind="error"
+  title={title ?? t("common.error_title")}
+  body={body ?? t("common.error_body")}
+  retryLabel={t("common.retry")}
+  retryHref={retryHref}
+/>

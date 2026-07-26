@@ -398,6 +398,7 @@ export function classifyRedirectTarget(
   // the whole C0+DEL range is stricter than strictly necessary — a bare space or
   // NUL would otherwise be percent-encoded and stay same-origin — but never
   // unsafe (ADR-0028 §8).
+  // eslint-disable-next-line no-control-regex -- rejecting C0+DEL in redirect targets IS the purpose of this regex
   if (/[\u0000-\u001f\u007f]/.test(target)) return "invalid";
 
   // Protocol-relative (`//host`) and backslash-normalized variants (`/\host`,

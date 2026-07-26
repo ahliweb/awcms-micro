@@ -9,18 +9,18 @@
  * never resolve a session belonging to another tenant. Security rests on the
  * 256-bit `rawToken`, not on the (non-secret) tenant id.
  */
-import { getDatabaseClient } from "../database/client";
-import { withTenant } from "../database/tenant-context";
-import { fetchVersionById } from "../../modules/theming/application/theme-config-directory";
-import { findActivePreviewSession } from "../../modules/theming/application/theme-preview-directory";
-import { resolveVersionThemeCss } from "../../modules/theming/application/theme-render-resolver";
-import type { ThemeConfig } from "../../modules/theming/domain/theme-config";
-import type { ThemeDescriptor } from "../../modules/theming/domain/theme-descriptor";
+import { getDatabaseClient } from "../../../lib/database/client";
+import { withTenant } from "../../../lib/database/tenant-context";
+import { fetchVersionById } from "../application/theme-config-directory";
+import { findActivePreviewSession } from "../application/theme-preview-directory";
+import { resolveVersionThemeCss } from "../application/theme-render-resolver";
+import type { ThemeConfig } from "../domain/theme-config";
+import type { ThemeDescriptor } from "../domain/theme-descriptor";
 import {
   hashPreviewToken,
   parsePreviewUrlToken
-} from "../../modules/theming/domain/preview-token";
-import { getThemeDescriptor } from "../../modules/theming/theme-registry";
+} from "../domain/preview-token";
+import { getThemeDescriptor } from "../theme-registry";
 import { resolveThemeAssetUrls, type ResolvedThemeAsset } from "./theme-media";
 
 export type PreviewRenderContext = {
@@ -29,6 +29,28 @@ export type PreviewRenderContext = {
   assetUrls: Record<string, ResolvedThemeAsset>;
   urlToken: string;
 };
+
+/**
+ * `withTenant` for the two preview readers below, degrading to `null` rather
+ * than letting a 503 `Response` escape as a value. Both callers are
+ * non-`Response` callers, so `withTenant`'s default would cast its unavailable
+ * `Response` into the declared return type (#323 class). "Preview could not be
+ * loaded" is exactly what `null` already means here, so no caller needs a new
+ * branch.
+ */
+async function withTenantOrNull<T>(
+  sql: Bun.SQL,
+  tenantId: string,
+  fn: (tx: Bun.TransactionSQL) => Promise<T | null>
+): Promise<T | null> {
+  try {
+    return await withTenant(sql, tenantId, fn, {
+      unavailableBehavior: "throw"
+    });
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Resolve a preview URL token to a renderable draft context, or `null` when the
@@ -44,7 +66,11 @@ export async function resolvePreviewContext(
   const sql = getDatabaseClient();
   const tokenHash = hashPreviewToken(parsed.rawToken);
 
-  return withTenant(sql, parsed.tenantId, async (tx) => {
+  // Non-`Response` caller (#323): a saturated pool would otherwise hand this
+  // function `withTenant`'s 503 `Response`, cast to `PreviewRenderContext`.
+  // A preview that cannot load is `null` — the caller already renders that as
+  // "preview unavailable" rather than leaking a Response into the page.
+  return withTenantOrNull(sql, parsed.tenantId, async (tx) => {
     const session = await findActivePreviewSession(tx, tokenHash, now);
     if (!session) return null;
     const version = await fetchVersionById(
@@ -89,7 +115,7 @@ export async function serveThemePreviewTokensCss(
   const sql = getDatabaseClient();
   const tokenHash = hashPreviewToken(parsed.rawToken);
 
-  const css = await withTenant(sql, parsed.tenantId, async (tx) => {
+  const css = await withTenantOrNull(sql, parsed.tenantId, async (tx) => {
     const session = await findActivePreviewSession(tx, tokenHash, now);
     if (!session) return null;
     const version = await fetchVersionById(

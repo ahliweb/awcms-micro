@@ -15,8 +15,24 @@ src/modules/<module-kebab>/
 ├── domain/               # entities.ts, value-objects.ts, events.ts
 ├── application/          # services.ts, commands.ts, queries.ts
 ├── infrastructure/       # repository.ts, mappers.ts
+├── presentation/         # OPSIONAL — skrip klien browser, data-loader halaman, CSS halaman (ADR-0038)
 └── README.md             # design doc lengkap: tujuan, tabel, endpoint, event, dependency, invariant keamanan (lihat README modul lain — 94-854 baris, bukan ringkasan singkat)
 ```
+
+**`presentation/` (ADR-0038, Issue #371/#372).** Kode presentasi milik
+modul — skrip yang berjalan di browser, loader data halaman, stylesheet
+halaman — tinggal di sini, **bukan** di `src/lib/<nama-modul>/`. Sebelum
+ADR-0038 tidak ada rumah untuk kategori ini, sehingga concern modul
+mengendap di `src/lib` di luar jangkauan setiap gerbang modul. Gerbang
+`modules:dag:check` sekarang **gagal** bila sebuah direktori
+`src/lib/<x>/` bertabrakan nama dengan `moduleKey` mana pun (termasuk
+lewat alias domain seperti `seo`→`seo_distribution`,
+`search`→`site_search`).
+
+`src/lib/` kini hanya untuk infrastruktur teknis yang tidak menyandang
+nama domain: `database/`, `auth/`, `cache/`, `resilience/`, `redis/`,
+`security/`, `i18n/`, `observability/`. Kalau namespace barumu di
+`src/lib` terdengar seperti nama modul, ia memang milik modul.
 
 Route API **tidak** hidup di dalam folder modul — tidak ada modul mana pun
 yang punya folder `api/` (`find src/modules -maxdepth 2 -type d -name api`

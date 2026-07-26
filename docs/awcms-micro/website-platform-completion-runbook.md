@@ -178,26 +178,48 @@ Reference: `tests/e2e/public-a11y-smoke.e2e.ts`, `tests/e2e/admin-a11y-smoke.e2e
 `tests/integration/public-link-integrity.integration.test.ts` (all from #298),
 `tests/e2e/public-content-a11y.e2e.ts` (axe atas template artikel `/news` + `/blog`
 yang sudah dirender, ber-seed, EN/ID × desktop/mobile — #296, menutup item axe
-konten yang sebelumnya deferred).
+konten yang sebelumnya deferred), `tests/e2e/public-discovery-a11y.e2e.ts` (axe atas
+halaman daftar, halaman pencarian termasuk cabang kosong/terlalu-pendek/tanpa-hasil,
+dan dokumen 404 publik — EN/ID × desktop/mobile + pencarian via keyboard),
+`tests/e2e/public-keyboard-journey.e2e.ts`, dan `scripts/link-check.ts`.
 
-1. **Run the in-repo axe smoke against the rendered site** (desktop + mobile viewports):
+1. **Run the in-repo axe smokes against the rendered site** (desktop + mobile viewports):
+
    ```bash
    bun run test:e2e   # requires a running server + seed DB; runs the axe smokes
    ```
-   Extend coverage to the **full public journey** in EN **and** ID (loading/empty/error/stale
-   states, direct-URL negatives) and add **keyboard + screen-reader** passes on the critical paths.
-   Capture axe JSON per page/locale; every critical journey must meet the declared **WCAG 2.2** target.
-2. **Automated link check on the rendered site** (a live crawl, complementary to the in-repo
-   internal-link integrity test):
+
+   The public journey is covered by four specs (`public-a11y-smoke`,
+   `public-content-a11y`, `public-discovery-a11y`, `public-keyboard-journey`) in EN
+   **and** ID, at desktop **and** mobile, including the empty/too-short/no-results/404
+   states and direct-URL negatives. The **screen-reader** pass is the one part no tool
+   automates — do it by hand (NVDA or VoiceOver) on: homepage → listing → article →
+   search → 404. Capture axe JSON per page/locale; every critical journey must meet the
+   declared **WCAG 2.2** target.
+
+2. **Automated link check on the rendered site** — in-repo, no external tool to install:
+
    ```bash
-   lychee --no-progress https://<site> https://<site>/sitemap.xml
+   bun run link:check -- --url=https://<site>/ --json-output=link-check.json
    ```
-   Capture the report; zero broken internal/SEO/feed links.
+
+   Crawls the rendered page graph from the entry URL, additionally seeded by
+   `robots.txt` `Sitemap:` directives and the sitemap index/children, and verifies every
+   internal anchor, `rel=canonical`, `rel=alternate hreflang`, feed autodiscovery link
+   and pagination link resolves. Exit **0** = clean, **1** = broken links (listed in
+   `broken[]` with the page each was found on), **2** = usage error or the entry URL
+   itself is unreachable — a crawl that reached nothing is never reported as green.
+   Useful flags: `--site-origin=https://<primary-domain>` when probing through a
+   different address than the site's own canonical domain (staging host, internal IP
+   behind the CDN, pre-cutover `localhost`), `--include-external` to also verify
+   outbound links, `--max-pages=` to bound a large site. Read-only GETs only — safe
+   against production. Attach `link-check.json` as the evidence artifact; zero broken
+   internal/SEO/feed links.
 
 **Acceptance (#296):**
 
 - [ ] Critical public journeys meet WCAG 2.2 (axe, EN + ID, desktop + mobile, keyboard, screen reader).
-- [ ] Link check green (no broken internal/SEO/feed links) on the rendered site.
+- [ ] `bun run link:check` exits 0 on the rendered site (no broken internal/SEO/feed links).
 
 ---
 

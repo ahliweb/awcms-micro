@@ -1,17 +1,9 @@
-import type { APIRoute } from "astro";
-
 import {
   fail,
   jsonResponse,
   ok
 } from "../../../../../../modules/_shared/api-response";
-import { getDatabaseClient } from "../../../../../../lib/database/client";
-import { withTenant } from "../../../../../../lib/database/tenant-context";
-import { hashSessionToken } from "../../../../../../lib/auth/session-token";
-import {
-  authorizeInTransaction,
-  resolveAuthInputs
-} from "../../../../../../modules/identity-access/application/access-guard";
+import { defineTenantRoute } from "../../../../../../modules/_shared/tenant-route";
 import {
   computeRequestHash,
   findIdempotencyRecord,
@@ -32,70 +24,69 @@ type ReleaseLegalHoldBody = {
  * release" (issue #745): holding `create` does not imply the ability to
  * `release`. High-risk mutation: requires `Idempotency-Key`,
  * reason-required, audited `critical`.
+ *
+ * `workClass: "interactive"` (Issue #370) — same reasoning as the create
+ * route in `../../legal-holds.ts`; re-affirms the existing class.
+ *
+ * The `params.id` guard moved from "before the tenant/token checks" into
+ * `prepare` (i.e. after them). The only input that could tell the two
+ * orderings apart is a request with NO route parameter at all, which Astro
+ * cannot produce for a `[id]` route — the guard is defense in depth against
+ * a direct programmatic call, and it still fires.
  */
-export const POST: APIRoute = async ({ request, cookies, locals, params }) => {
-  const holdId = params.id;
-  if (!holdId) {
-    return fail(400, "VALIDATION_ERROR", "Legal hold id is required.");
-  }
-
-  const { tenantId, token } = resolveAuthInputs(request, cookies);
-
-  if (!tenantId) {
-    return fail(400, "TENANT_REQUIRED", "Tenant header is required.");
-  }
-  if (!token) {
-    return fail(401, "AUTH_REQUIRED", "Authentication required.");
-  }
-
-  const idempotencyKey = request.headers.get("idempotency-key");
-  if (!idempotencyKey) {
-    return fail(
-      400,
-      "IDEMPOTENCY_REQUIRED",
-      "Idempotency-Key header is required."
-    );
-  }
-
-  let body: ReleaseLegalHoldBody;
-  try {
-    body = (await request.json()) as ReleaseLegalHoldBody;
-  } catch {
-    return fail(400, "VALIDATION_ERROR", "Request body must be valid JSON.");
-  }
-
-  const releaseReason =
-    typeof body.releaseReason === "string" ? body.releaseReason : "";
-  const requestHash = computeRequestHash({
-    ...body,
-    id: holdId,
+export const POST = defineTenantRoute({
+  workClass: "interactive",
+  authorize: {
+    moduleKey: "data_lifecycle",
+    activityCode: "legal_hold",
     action: "release"
-  });
-  const sql = getDatabaseClient();
-  const tokenHash = hashSessionToken(token);
-  const now = new Date();
-  const correlationId = locals.correlationId;
-
-  return withTenant(sql, tenantId, async (tx) => {
-    const auth = await authorizeInTransaction(tx, tenantId, tokenHash, now, {
-      moduleKey: "data_lifecycle",
-      activityCode: "legal_hold",
-      action: "release"
-    });
-
-    if (!auth.allowed) {
-      return auth.denied;
+  },
+  prepare: async ({ request, params }) => {
+    const holdId = params.id;
+    if (!holdId) {
+      return fail(400, "VALIDATION_ERROR", "Legal hold id is required.");
     }
 
+    const idempotencyKey = request.headers.get("idempotency-key");
+    if (!idempotencyKey) {
+      return fail(
+        400,
+        "IDEMPOTENCY_REQUIRED",
+        "Idempotency-Key header is required."
+      );
+    }
+
+    let body: ReleaseLegalHoldBody;
+    try {
+      body = (await request.json()) as ReleaseLegalHoldBody;
+    } catch {
+      return fail(400, "VALIDATION_ERROR", "Request body must be valid JSON.");
+    }
+
+    return {
+      holdId,
+      idempotencyKey,
+      // Same hash inputs as before the refactor — replay identity is stable.
+      requestHash: computeRequestHash({
+        ...body,
+        id: holdId,
+        action: "release"
+      }),
+      releaseReason:
+        typeof body.releaseReason === "string" ? body.releaseReason : ""
+    };
+  },
+  handler: async ({ tx, tenantId, locals, auth, prepared }) => {
+    // Sequential `await`s on one `tx` — never `Promise.all` (#324).
     const existingIdempotency = await findIdempotencyRecord(
       tx,
       tenantId,
       IDEMPOTENCY_SCOPE,
-      idempotencyKey
+      prepared.idempotencyKey
     );
 
     if (existingIdempotency) {
-      if (existingIdempotency.requestHash !== requestHash) {
+      if (existingIdempotency.requestHash !== prepared.requestHash) {
         return fail(
           409,
           "IDEMPOTENCY_CONFLICT",
@@ -111,9 +102,9 @@ export const POST: APIRoute = async ({ request, cookies, locals, params }) => {
       tx,
       tenantId,
       auth.context.tenantUserId,
-      holdId,
-      { releaseReason },
-      correlationId
+      prepared.holdId,
+      { releaseReason: prepared.releaseReason },
+      locals.correlationId
     );
 
     if (!result.ok) {
@@ -139,12 +130,12 @@ export const POST: APIRoute = async ({ request, cookies, locals, params }) => {
       tx,
       tenantId,
       IDEMPOTENCY_SCOPE,
-      idempotencyKey,
-      requestHash,
+      prepared.idempotencyKey,
+      prepared.requestHash,
       200,
       successBody
     );
 
     return successResponse;
-  });
-};
+  }
+});

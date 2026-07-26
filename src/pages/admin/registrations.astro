@@ -168,7 +168,7 @@ function formatRequestedAt(iso: string): string {
                       {t("admin.registrations.role_none")}
                     </option>
                     {data!.roles.map((role) => (
-                      <option value={role.id}>{role.roleName}</option>
+                      <option value={role.roleId}>{role.roleName}</option>
                     ))}
                   </select>
                 ) : (
@@ -196,8 +196,17 @@ function formatRequestedAt(iso: string): string {
     )
   }
 
-  <ConfirmDialog id="approve-dialog" danger={false} />
-  <ConfirmDialog id="reject-dialog" />
+  <ConfirmDialog
+    id="approve-dialog"
+    confirmLabel={clientStrings.confirmButton}
+    cancelLabel={clientStrings.cancelButton}
+    danger={false}
+  />
+  <ConfirmDialog
+    id="reject-dialog"
+    confirmLabel={clientStrings.confirmButton}
+    cancelLabel={clientStrings.cancelButton}
+  />
 
   <script
     type="application/json"

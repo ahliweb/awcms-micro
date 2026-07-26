@@ -13,6 +13,32 @@ Endpoint REST memakai helper dari `api-response.ts` agar response konsisten:
 - sukses: `{ success: true, data, meta }`
 - gagal: `{ success: false, error: { code, message, details? }, meta }`
 
+## Tenant Route Factory
+
+`tenant-route.ts` — `defineTenantRoute` memuat SATU KALI pembukaan auth/tenant
+yang sebelumnya disalin ke 201 dari 260 rute: `resolveAuthInputs` → cek
+tenant/token → `getDatabaseClient` → `hashSessionToken` → `withTenant` →
+`authorizeInTransaction` → short-circuit `auth.denied` → `handler`. Tiga hal
+yang tidak obvious:
+
+- **`workClass` WAJIB** (tanpa default). Ini alasan utama Issue #370: 221 rute
+  memakai `interactive` karena tidak ada yang meneruskan argumennya, bukan
+  karena ada yang memutuskannya.
+- **`unavailableBehavior` di-hardcode `"response"`** dan sengaja tidak bisa
+  dioverride — rute adalah pemanggil `Response`; `"throw"` hanya untuk
+  pemanggil non-`Response` (SSR/`resolveSsrContext`), yang bukan rute (#323).
+- **`prepare`** berjalan setelah cek tenant/token tetapi sebelum koneksi
+  diambil — tempat parsing body/query, `Idempotency-Key`, dan request hashing.
+
+Ini satu-satunya file di `_shared/` yang meng-import modul lain
+(`identity-access`): guard chain memang milik `identity-access`, dan modul itu
+foundation yang tidak bisa dinonaktifkan. Aturan netralitas `ports/*.ts` (tidak
+meng-import modul apa pun) tetap berlaku penuh untuk ports; factory ini bukan
+port, melainkan composition root bersama untuk rute.
+
+Rute baru wajib lewat factory ini — `bun run api:tenant-route:check`
+menegakkannya; migrasi rute lama berjalan per modul.
+
 ## Idempotency Store
 
 `idempotency.ts` backs `awcms_micro_idempotency_keys` (migration 012) for every high-risk mutation endpoint that requires `Idempotency-Key` (doc 10, skill `awcms-micro-idempotency`). `saveIdempotencyRecord` uses `INSERT ... ON CONFLICT (tenant_id, request_scope, idempotency_key) DO NOTHING RETURNING id` — two parallel requests can both pass `findIdempotencyRecord` under READ COMMITTED before either commits, and only one may win the unique index. On losing the race it re-`SELECT`s the now-committed winning row and compares `request_hash`: identical payload → throws `IdempotencyRaceLostError` carrying the winner's response to replay (honoring the ordinary "same hash → replay" rule even under the race); different payload → throws it with no replay (genuine conflict). `withTenant` (`src/lib/database/tenant-context.ts`) catches this error at the one chokepoint every caller already goes through: it rolls back the loser's transaction (so its mutation never persists), skips the circuit breaker (benign concurrency, not an infra failure), logs `idempotency.race_lost` (SHA-256 hash of the key, never the raw value), and returns either the replayed response or a clean `409 IDEMPOTENCY_CONFLICT` — never a raw constraint error — without touching the ~25 individual route files.

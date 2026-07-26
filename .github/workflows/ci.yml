@@ -94,7 +94,22 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Prettier check
+      # Quarantined static-analysis toolchain (Issue #369): `astro check` and
+      # `typescript-eslint` still need TypeScript's programmatic API, which
+      # `typescript@7` (the root compiler) no longer ships. It lives in its own
+      # node_modules so TS 6 never reaches the root install.
+      - name: Install static-analysis toolchain (quarantined TypeScript 6)
+        run: bun install --frozen-lockfile --cwd tools/static-analysis
+
+      - name: Static-analysis toolchain versions (root TS 7 vs quarantine TS 6)
+        run: bun run static-analysis:versions
+
+      # Fails once the toolchain accepts TypeScript 7 — i.e. when the
+      # quarantine can be deleted. Nobody has to remember to check.
+      - name: Static-analysis quarantine still required
+        run: bun run static-analysis:quarantine:check
+
+      - name: Lint (prettier format + eslint correctness)
         run: bun run lint
 
       - name: Docs checks (mermaid, internal links, naming)
@@ -119,6 +134,9 @@ jobs:
 
       - name: i18n EN/ID/POT key parity check
         run: bun run i18n:parity:check
+
+      - name: Tenant-route factory gate
+        run: bun run api:tenant-route:check
 
       - name: Database work-class registry drift check
         run: bun run db:work-class:check
@@ -161,6 +179,12 @@ jobs:
 
       - name: Typecheck (tsc --noEmit)
         run: bun run typecheck
+
+      # `tsc` cannot parse `.astro` — it skips those files silently. This is
+      # the only gate that type-checks `.astro` frontmatter AND the inline
+      # `<script>` browser code (Issue #369).
+      - name: Typecheck .astro (astro check)
+        run: bun run typecheck:astro
 
       - name: Apply migrations (integration DB)
         run: bun run db:migrate

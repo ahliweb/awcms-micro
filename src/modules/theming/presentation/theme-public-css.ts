@@ -16,19 +16,19 @@
  * `style-src 'self'` without any inline `<style>` — the whole reason token values
  * ship as an external stylesheet (ADR-0029 §7: never weaken CSP).
  */
-import { getDatabaseClient } from "../database/client";
-import { withTenant } from "../database/tenant-context";
+import { getDatabaseClient } from "../../../lib/database/client";
+import { withTenant } from "../../../lib/database/tenant-context";
 import {
   resolvePublicTenantFromRequest,
   type PublicHostResolverConfig
-} from "../tenant/public-host-tenant-resolver";
-import { fetchTenantModuleEntry } from "../../modules/module-management/application/tenant-module-lifecycle";
-import { THEMING_MODULE_KEY } from "../../modules/theming/domain/theme-permissions";
+} from "../../../lib/tenant/public-host-tenant-resolver";
+import { fetchTenantModuleEntry } from "../../module-management/application/tenant-module-lifecycle";
+import { THEMING_MODULE_KEY } from "../domain/theme-permissions";
 import {
   defaultThemeCss,
   resolveActiveThemeCssForTenant,
   type ResolvedThemeCss
-} from "../../modules/theming/application/theme-render-resolver";
+} from "../application/theme-render-resolver";
 
 /** Build the host-resolver config from the documented env vars (same shape as the SEO/news routes). */
 export function buildThemingHostResolverConfigFromEnv(
@@ -84,15 +84,29 @@ export async function serveActiveThemeTokensCss(
   if (!tenant) {
     resolved = defaultThemeCss();
   } else {
-    resolved = await withTenant(sql, tenant.tenantId, async (tx) => {
-      const entry = await fetchTenantModuleEntry(
-        tx,
+    try {
+      resolved = await withTenant(
+        sql,
         tenant.tenantId,
-        THEMING_MODULE_KEY
+        async (tx) => {
+          const entry = await fetchTenantModuleEntry(
+            tx,
+            tenant.tenantId,
+            THEMING_MODULE_KEY
+          );
+          if (!(entry?.tenantEnabled ?? false)) return defaultThemeCss();
+          return resolveActiveThemeCssForTenant(tx, tenant.tenantId);
+        },
+        // Non-`Response` caller: without this, a saturated pool makes
+        // `withTenant` hand back its 503 `Response`, which then gets cast to
+        // `ResolvedThemeCss` and serialised as `[object Response]` INTO THE
+        // STYLESHEET of every public page (#323 class). Degrade to the
+        // default theme instead — a plain-looking site beats a broken one.
+        { unavailableBehavior: "throw" }
       );
-      if (!(entry?.tenantEnabled ?? false)) return defaultThemeCss();
-      return resolveActiveThemeCssForTenant(tx, tenant.tenantId);
-    });
+    } catch {
+      resolved = defaultThemeCss();
+    }
   }
 
   const ifNoneMatch = request.headers.get("if-none-match");

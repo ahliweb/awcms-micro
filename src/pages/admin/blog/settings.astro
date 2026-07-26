@@ -69,14 +69,34 @@ let loadError = false;
 
 if (CAN_READ_SETTINGS || CAN_READ_THEME) {
   try {
-    await withTenant(getDatabaseClient(), context.tenantId, async (tx) => {
-      if (CAN_READ_SETTINGS) {
-        settings = await fetchBlogSettings(tx, context.tenantId);
-      }
-      if (CAN_READ_THEME) {
-        theme = await fetchBlogThemeSettings(tx, context.tenantId);
-      }
-    });
+    // The loaded rows come back as the callback's RETURN value rather than
+    // being assigned to the outer `let`s from inside the closure: TypeScript's
+    // control-flow analysis cannot see a write that happens inside a callback,
+    // so the closure form narrowed both variables back to `null` (then to
+    // `never` under `settings && ...`) for the whole template — which is why
+    // this file used to need a `settings!` non-null assertion. `astro check`
+    // (Issue #369) surfaced that; returning the values keeps the types honest.
+    //
+    // `unavailableBehavior: "throw"` is mandatory now that the return value is
+    // consumed as data: the default "response" mode would hand this render a
+    // 503 `Response` masquerading as the settings tuple (the #323 class of
+    // bug).
+    const loaded = await withTenant(
+      getDatabaseClient(),
+      context.tenantId,
+      async (tx) => {
+        const loadedSettings = CAN_READ_SETTINGS
+          ? await fetchBlogSettings(tx, context.tenantId)
+          : null;
+        const loadedTheme = CAN_READ_THEME
+          ? await fetchBlogThemeSettings(tx, context.tenantId)
+          : null;
+        return { settings: loadedSettings, theme: loadedTheme };
+      },
+      { unavailableBehavior: "throw" }
+    );
+    settings = loaded.settings;
+    theme = loaded.theme;
   } catch (error) {
     logAdminPageError(
       "admin/blog/settings.astro: failed to load settings",

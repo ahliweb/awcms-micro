@@ -1,0 +1,91 @@
+---
+/**
+ * CheckboxGroup — a whole list of `CheckboxField`s under one `name`
+ * (Issue #372).
+ *
+ * `class="role-checkbox-group"` (the scrollable multi-select box) appears
+ * in `admin/access-users.astro` (3×: initial roles, plus the permission
+ * picker in both the create-role and edit-role forms) and
+ * `admin/security.astro` (break-glass owner picker) — two pages, four call
+ * sites, each of which hand-rolled the same `fieldset`/`div` + `.map()` +
+ * `<label class="checkbox-label">` stack.
+ *
+ * Two shapes, because both are already in use:
+ *   - `items` — a flat list.
+ *   - `groups` — the same list bucketed under `<strong>` subheadings
+ *     (`admin/access-users`'s permission catalog, grouped by `moduleKey`).
+ *
+ * Container element follows the semantics, not a prop: with a `legend` it
+ * renders `<fieldset><legend>` (a labelled group, and the only element that
+ * can carry `disabled` for all its controls at once — that is how
+ * `access-users` greys out a system role's permission set); without one it
+ * renders a plain `<div>`, matching `admin/security`'s picker, which sits
+ * inside an outer fieldset that already carries the legend.
+ *
+ * **No CSS here** — see `CheckboxField.astro`'s header for why the shared
+ * checkbox primitives deliberately leave `.role-checkbox-group`/
+ * `.checkbox-label`/`.permission-module-group` styling to the page
+ * stylesheet that already owns it.
+ */
+import CheckboxField from "./CheckboxField.astro";
+
+export interface CheckboxGroupItem {
+  value: string;
+  label: string;
+  checked?: boolean;
+}
+
+export interface CheckboxGroupSection {
+  title: string;
+  items: CheckboxGroupItem[];
+}
+
+interface Props {
+  name: string;
+  items?: CheckboxGroupItem[];
+  groups?: CheckboxGroupSection[];
+  legend?: string;
+  disabled?: boolean;
+  containerClass?: string;
+}
+
+const {
+  name,
+  items,
+  groups,
+  legend,
+  disabled = false,
+  containerClass = "role-checkbox-group"
+} = Astro.props;
+
+const Container = legend ? "fieldset" : "div";
+---
+
+<Container class={containerClass} disabled={legend ? disabled : undefined}>
+  {legend && <legend>{legend}</legend>}
+  {
+    items?.map((item) => (
+      <CheckboxField
+        name={name}
+        value={item.value}
+        label={item.label}
+        checked={item.checked}
+      />
+    ))
+  }
+  {
+    groups?.map((group) => (
+      <div class="permission-module-group">
+        <strong>{group.title}</strong>
+        {group.items.map((item) => (
+          <CheckboxField
+            name={name}
+            value={item.value}
+            label={item.label}
+            checked={item.checked}
+          />
+        ))}
+      </div>
+    ))
+  }
+</Container>

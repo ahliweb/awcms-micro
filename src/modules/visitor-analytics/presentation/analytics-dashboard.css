@@ -1,0 +1,156 @@
+/**
+ * Stylesheet for the visitor-analytics dashboard (`/admin/analytics`) —
+ * presentation layer per ADR-0038, moved out of that page's inline
+ * `<style>` block by Issue #372.
+ *
+ * Every selector is anchored on a class this page owns (`.analytics-*`,
+ * `.stat-*`, `.section-*`, `.devices-grid`, `.table-scroll`,
+ * `.ghost-button`) — no bare element selectors — so losing Astro's
+ * per-component scoping changes nothing about which elements match.
+ */
+.analytics-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.analytics-section {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.analytics-section h2 {
+  margin: 0;
+  font-size: var(--fs-md);
+}
+
+.analytics-section h3 {
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--sp-3);
+}
+
+.stat-grid-single {
+  grid-template-columns: minmax(160px, 240px);
+}
+
+.stat-tile {
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.stat-value {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.stat-sub {
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+
+.section-hint {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+
+.section-state {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--color-text-muted);
+}
+
+.section-state:empty {
+  display: none;
+}
+
+.analytics-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  font-size: var(--fs-sm);
+}
+
+.analytics-toolbar select {
+  padding: var(--sp-1) var(--sp-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  min-height: 44px;
+}
+
+.devices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--sp-4);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.analytics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.analytics-table th,
+.analytics-table td {
+  text-align: left;
+  padding: var(--sp-2);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.ghost-button {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-1) var(--sp-3);
+  min-height: 44px;
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.ghost-button:hover {
+  background: var(--color-surface-2);
+}
+
+@media (max-width: 768px) {
+  .analytics-toolbar select,
+  .ghost-button {
+    min-height: 44px;
+  }
+}

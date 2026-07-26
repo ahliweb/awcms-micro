@@ -54,12 +54,28 @@ let loadError = false;
 
 if (CAN_READ) {
   try {
-    await withTenant(getDatabaseClient(), context.tenantId, async (tx) => {
-      settings = await fetchInternalTagLinkingSettings(tx, context.tenantId);
-      tags = await listBlogTerms(tx, context.tenantId, {
-        taxonomyType: "tag"
-      });
-    });
+    // Returned, not assigned from inside the closure: TypeScript cannot track
+    // a write that happens in a callback, so the old form left `settings`
+    // narrowed to `null`/`never` for the entire template (Issue #369).
+    // `unavailableBehavior: "throw"` is required once the return value is read
+    // as data, so a 503 `Response` can never masquerade as it (#323).
+    const loaded = await withTenant(
+      getDatabaseClient(),
+      context.tenantId,
+      async (tx) => {
+        const loadedSettings = await fetchInternalTagLinkingSettings(
+          tx,
+          context.tenantId
+        );
+        const loadedTags = await listBlogTerms(tx, context.tenantId, {
+          taxonomyType: "tag"
+        });
+        return { settings: loadedSettings, tags: loadedTags };
+      },
+      { unavailableBehavior: "throw" }
+    );
+    settings = loaded.settings;
+    tags = loaded.tags;
   } catch (error) {
     logAdminPageError(
       "admin/blog/internal-tag-links.astro: failed to load settings",

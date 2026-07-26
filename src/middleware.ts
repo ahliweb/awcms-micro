@@ -36,7 +36,7 @@ import {
 import {
   recordPublicNotFound,
   resolvePublicRedirectForRequest
-} from "./lib/seo/redirect-middleware";
+} from "./modules/seo-distribution/presentation/redirect-middleware";
 import { getEdgeCacheConfig } from "./lib/cache/edge-cache-config";
 import { resolveEdgeCacheMode } from "./lib/cache/edge-cache-pressure";
 import { applyEdgeCacheToResponse } from "./lib/cache/edge-cache-response";

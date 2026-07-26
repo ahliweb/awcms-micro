@@ -61,7 +61,7 @@ describe("createNewsMediaR2Client (Issue #634)", () => {
       const result = await client.headObject("missing.jpg");
       expect(result).toEqual({ ok: true, exists: false });
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -87,7 +87,7 @@ describe("createNewsMediaR2Client (Issue #634)", () => {
       const result = await client.headObject("present.jpg");
       expect(result).toEqual({ ok: true, exists: true, sizeBytes: 12345 });
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -121,7 +121,7 @@ describe("createNewsMediaR2Client (Issue #634)", () => {
         bytes: payload
       });
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -188,7 +188,7 @@ describe("createNewsMediaR2Client (Issue #634)", () => {
 
       expect(result).toEqual({ ok: true, sizeExceeded: true });
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -214,7 +214,7 @@ describe("createNewsMediaR2Client (Issue #634)", () => {
 
       expect(lastResult?.ok).toBe(false);
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 });
@@ -287,7 +287,7 @@ describe("createNewsMediaR2Client listObjects/deleteObject (Issue #690)", () => 
         nextContinuationToken: undefined
       });
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -370,7 +370,7 @@ describe("createNewsMediaR2Client listObjects/deleteObject (Issue #690)", () => 
         nextContinuationToken: undefined
       });
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -396,7 +396,7 @@ describe("createNewsMediaR2Client listObjects/deleteObject (Issue #690)", () => 
 
       expect(lastResult?.ok).toBe(false);
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -440,7 +440,7 @@ describe("createNewsMediaR2Client listObjects/deleteObject (Issue #690)", () => 
         expect(second.objects).toHaveLength(1);
       }
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -464,7 +464,7 @@ describe("createNewsMediaR2Client listObjects/deleteObject (Issue #690)", () => 
       const result = await client.deleteObject("news-media/tenant-1/x.jpg");
       expect(result).toEqual({ ok: true });
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -489,7 +489,7 @@ describe("createNewsMediaR2Client listObjects/deleteObject (Issue #690)", () => 
       const result = await client.deleteObject("news-media/tenant-1/x.jpg");
       expect(result.ok).toBe(false);
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 });

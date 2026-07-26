@@ -20,14 +20,28 @@
  * accessible replacement for the `window.prompt(reasonText)` pattern used
  * by delete flows that record a `reason` (soft-delete audit trail, doc 10).
  */
+/**
+ * `confirmLabel`/`cancelLabel` became optional in Issue #372. Every caller
+ * but one passed the same pair of `common.*` keys (directly, or via a
+ * `clientStrings` blob built from them), and `admin/registrations.astro`
+ * passed NEITHER — a missing-required-prop bug that shipped unnoticed
+ * because `bun run typecheck` is `tsc --noEmit`, which never parses
+ * `.astro` files. Defaulting them here both removes four lines from every
+ * call site and renders real button text on that page.
+ */
+import { createTranslator } from "../../lib/i18n/translate";
+
 interface Props {
   id: string;
-  confirmLabel: string;
-  cancelLabel: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
   danger?: boolean;
 }
 
 const { id, confirmLabel, cancelLabel, danger = true } = Astro.props;
+const t = await createTranslator(Astro.locals.locale);
+const resolvedConfirmLabel = confirmLabel ?? t("common.confirm_button");
+const resolvedCancelLabel = cancelLabel ?? t("common.cancel_button");
 const titleId = `${id}-title`;
 const bodyId = `${id}-body`;
 const reasonId = `${id}-reason`;
@@ -65,7 +79,7 @@ const reasonErrorId = `${id}-reason-error`;
 
   <div class="confirm-dialog-actions">
     <button type="button" class="confirm-dialog-cancel" data-confirm-cancel>
-      {cancelLabel}
+      {resolvedCancelLabel}
     </button>
     <button
       type="button"
@@ -75,7 +89,7 @@ const reasonErrorId = `${id}-reason-error`;
       ]}
       data-confirm-accept
     >
-      {confirmLabel}
+      {resolvedConfirmLabel}
     </button>
   </div>
 </dialog>

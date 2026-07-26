@@ -44,6 +44,7 @@ const SYNTHETIC_BASE = "https://redirect-normalize.invalid";
 const SYNTHETIC_ORIGIN = "https://redirect-normalize.invalid";
 
 /** C0 controls (U+0000–U+001F) + space (U+0020) + DEL (U+007F). */
+// eslint-disable-next-line no-control-regex -- rejecting NUL in a redirect path IS the purpose of this regex
 const CONTROL_OR_WHITESPACE = /[\u0000-\u0020\u007f]/;
 
 export type RedirectPathNormalizationResult =

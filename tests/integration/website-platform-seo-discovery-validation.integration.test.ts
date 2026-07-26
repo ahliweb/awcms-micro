@@ -72,7 +72,7 @@ import { POST as createPost } from "../../src/pages/api/v1/blog/posts/index";
 import { POST as publishPost } from "../../src/pages/api/v1/blog/posts/[id]/publish";
 
 // Real site_search engine + service.
-import { getRegisteredSearchSources } from "../../src/lib/search/search-sources";
+import { getRegisteredSearchSources } from "../../src/modules/site-search/presentation/search-sources";
 import {
   rebuildTenantSearchIndex,
   reconcileTenantSearchIndex

@@ -1,0 +1,193 @@
+/**
+ * Stylesheet for the tenant-domain admin screen (`/admin/tenant/domains`) —
+ * presentation layer per ADR-0038, moved out of that page's inline
+ * `<style>` block by Issue #372.
+ *
+ * All but three rule groups are anchored on a class this page owns
+ * (`.domain-manager`, `.domain-*`, `.record-list`, `.actions-cell`,
+ * `.create-domain*`/`.edit-domain*`, `.field-hint`, `.checkbox-label`), so
+ * losing Astro's per-component scoping changes nothing about which elements
+ * match. The three that were element-level selectors are re-anchored on
+ * `.domain-manager` — see the comment at the foot of this file.
+ */
+.domain-manager {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+/* `.action-banner`, `.table-scroll`/`.domain-table`, and `.status-pill`
+   were previously hand-rolled here — now supplied by `ActionBanner.astro`,
+   `DataTable.astro`, and `StatusBadge.astro` respectively (Issue #693). */
+
+.field-hint {
+  color: var(--color-text-muted);
+  font-size: var(--fs-xs);
+  margin: var(--sp-1) 0 0;
+}
+
+.primary-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  margin-left: var(--sp-2);
+  padding: 0 var(--sp-2);
+  border-radius: var(--radius-full);
+  background: var(--color-primary-strong);
+  color: var(--color-primary-contrast);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.verification-cell {
+  max-width: 320px;
+}
+
+.record-list {
+  margin: var(--sp-1) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.record-list dt {
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+}
+
+.record-list dd {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  word-break: break-all;
+}
+
+.record-list code {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+}
+
+.copy-record-button {
+  flex-shrink: 0;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--sp-2);
+  min-height: 32px;
+  cursor: pointer;
+  font-size: var(--fs-xs);
+}
+
+.actions-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-1);
+  min-width: 160px;
+}
+
+.actions-cell button,
+.actions-cell .preview-link {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-1) var(--sp-2);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: var(--fs-xs);
+  color: var(--color-text);
+  text-decoration: none;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.delete-domain-button {
+  color: var(--color-danger-strong);
+  border-color: var(--color-danger-strong);
+}
+
+.preview-link {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.edit-domain-form,
+.create-domain-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+  max-width: 420px;
+}
+
+.edit-domain-form label,
+.create-domain-form label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+}
+
+.checkbox-label {
+  flex-direction: row !important;
+  align-items: center;
+}
+
+.edit-domain-form input,
+.edit-domain-form select,
+.create-domain-form input,
+.create-domain-form select {
+  padding: var(--sp-1) var(--sp-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.edit-domain-form button,
+.create-domain-form button {
+  align-self: flex-start;
+  background: var(--color-primary-strong);
+  color: var(--color-primary-contrast);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--sp-1) var(--sp-3);
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.create-domain {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-3);
+}
+
+/* The three rule groups below were element-level selectors while this file
+   was an Astro-scoped `<style>` block in `admin/tenant/domains.astro`:
+   scoping confined them to that page's own template. As a plain stylesheet
+   they would also reach `AdminLayout`'s topbar/nav controls, so they are
+   re-anchored on `.domain-manager` — the page's single root container, which
+   wraps every element they were ever written for (Issue #372). */
+.create-domain summary,
+.edit-domain summary,
+.domain-manager details summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.domain-manager button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.domain-manager input:focus-visible,
+.domain-manager select:focus-visible,
+.domain-manager textarea:focus-visible,
+.domain-manager button:focus-visible,
+.domain-manager a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

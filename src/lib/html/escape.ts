@@ -23,6 +23,7 @@ export function escapeHtml(value: string): string {
  * whole feed/sitemap non-well-formed. There is no write-side stripping in the
  * content modules, so the XML serializers must strip at their own boundary.
  */
+// eslint-disable-next-line no-control-regex -- matching the XML-illegal C0 range IS the purpose of this regex
 const XML_ILLEGAL_C0 = /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g;
 
 /**

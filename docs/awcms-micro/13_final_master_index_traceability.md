@@ -358,7 +358,7 @@ Alasan:
 
 Tiap folder standar menyertakan `README.md` sebagai kontrak isi/aturan folder:
 
-- `src/lib/README.md` — helper lintas-modul (`auth/`, `database/`, `errors/`, `files/`, `logging/`).
+- `src/lib/README.md` — infrastruktur teknis lintas-modul (`auth/`, `database/`, `logging/`, `security/`, …). Batasnya ditetapkan ADR-0038: `src/lib` tidak pernah menyandang nama domain; kode presentasi/pengiriman milik modul tinggal di `src/modules/<modul>/presentation/`.
 - `src/modules/_shared/README.md` — module contract, API response envelope, konvensi soft delete.
 - `openapi/README.md` — kontrak OpenAPI publik dan kewajiban `api:spec:check`.
 - `asyncapi/README.md` — kontrak AsyncAPI domain-event dan kewajiban pendaftaran channel.

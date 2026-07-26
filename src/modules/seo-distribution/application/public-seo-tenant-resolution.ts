@@ -24,7 +24,7 @@
  * NO cross-content-module import: this file consumes only `module_management`'s
  * tenant lifecycle (the module registry authority) and the neutral tenant
  * resolver — never `blog_content`/`news_portal` internals. The content providers
- * are injected at the route composition root (`src/lib/seo/discovery-providers.ts`).
+ * are injected at the route composition root (`src/modules/seo-distribution/presentation/discovery-providers.ts`).
  */
 import { withTenant } from "../../../lib/database/tenant-context";
 import {

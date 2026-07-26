@@ -1,13 +1,5 @@
-import type { APIRoute } from "astro";
-
-import { fail, ok } from "../../../../modules/_shared/api-response";
-import { getDatabaseClient } from "../../../../lib/database/client";
-import { withTenant } from "../../../../lib/database/tenant-context";
-import { hashSessionToken } from "../../../../lib/auth/session-token";
-import {
-  authorizeInTransaction,
-  resolveAuthInputs
-} from "../../../../modules/identity-access/application/access-guard";
+import { ok } from "../../../../modules/_shared/api-response";
+import { defineTenantRoute } from "../../../../modules/_shared/tenant-route";
 import { listModules } from "../../../../modules";
 import { collectHighVolumeTableDescriptors } from "../../../../modules/data-lifecycle/domain/lifecycle-registry";
 
@@ -20,34 +12,20 @@ import { collectHighVolumeTableDescriptors } from "../../../../modules/data-life
  * established for other code-derived, non-tenant-scoped registries):
  * role/permission grants themselves are tenant-scoped even though this
  * response body is identical for every tenant.
+ *
+ * `workClass: "interactive"` (Issue #370) — an admin-screen read whose only
+ * database work is the guard chain itself. This RE-AFFIRMS the class the
+ * route already ran under, so migrating to `defineTenantRoute` flips the
+ * work-class registry's `source` (`"default"` → `"explicit"`) and changes
+ * nothing at runtime; re-tiering a route is a separate, reviewable decision.
  */
-export const GET: APIRoute = async ({ request, cookies }) => {
-  const { tenantId, token } = resolveAuthInputs(request, cookies);
-
-  if (!tenantId) {
-    return fail(400, "TENANT_REQUIRED", "Tenant header is required.");
-  }
-  if (!token) {
-    return fail(401, "AUTH_REQUIRED", "Authentication required.");
-  }
-
-  const sql = getDatabaseClient();
-  const tokenHash = hashSessionToken(token);
-  const now = new Date();
-
-  return withTenant(sql, tenantId, async (tx) => {
-    const auth = await authorizeInTransaction(tx, tenantId, tokenHash, now, {
-      moduleKey: "data_lifecycle",
-      activityCode: "registry",
-      action: "read"
-    });
-
-    if (!auth.allowed) {
-      return auth.denied;
-    }
-
-    const descriptors = collectHighVolumeTableDescriptors(listModules());
-
-    return ok({ descriptors });
-  });
-};
+export const GET = defineTenantRoute({
+  workClass: "interactive",
+  authorize: {
+    moduleKey: "data_lifecycle",
+    activityCode: "registry",
+    action: "read"
+  },
+  handler: () =>
+    ok({ descriptors: collectHighVolumeTableDescriptors(listModules()) })
+});

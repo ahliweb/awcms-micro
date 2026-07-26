@@ -106,6 +106,52 @@ Dua aturan wajib saat memakai `withTenant` (keduanya sumber insiden produksi
   `withTenant` melempar `DatabaseUnavailableError` (ditangkap `try/catch`
   pemanggil untuk degrade anggun) alih-alih membocorkan `Response`.
 
+### Route API: `defineTenantRoute`, bukan `withTenant` langsung (Issue #370)
+
+Rute di `src/pages/api/**` **tidak** menulis sendiri pembukaan
+`resolveAuthInputs` → cek tenant/token → `getDatabaseClient` →
+`hashSessionToken` → `withTenant` → `authorizeInTransaction` →
+`auth.denied`. Pembukaan itu hidup satu kali di
+`src/modules/_shared/tenant-route.ts`:
+
+```ts
+export const GET = defineTenantRoute({
+  workClass: "interactive", // WAJIB — tidak ada default
+  authorize: {
+    moduleKey: "data_lifecycle",
+    activityCode: "registry",
+    action: "read"
+  },
+  prepare: ({ url }) => parseQuery(url), // sebelum DB; boleh return Response
+  handler: async ({ tx, auth, tenantId, prepared }) => ok({ ... })
+});
+```
+
+- **`workClass` wajib.** `withTenant` sendiri default `"interactive"`, dan
+  default itulah yang membuat 221 dari 241 rute masuk budget pool yang sama
+  dengan login tanpa pernah diputuskan siapa pun
+  (`work-class-registry.generated.json`, `source: "default"`). Lewat factory,
+  menghilangkannya = compile error. Menegaskan ulang `"interactive"` adalah
+  jawaban yang sah; membiarkannya tak tertulis tidak.
+- **`unavailableBehavior` di-hardcode `"response"`** — rute adalah pemanggil
+  `Response` menurut konstruksi, jadi 503 `DATABASE_BUSY` + `Retry-After`
+  memang balasan yang benar. Tidak bisa dioverride: `"throw"` di sini akan
+  meloloskan `DatabaseUnavailableError` ke error handler Astro (503 terkendali
+  jadi 500) — kebalikan persis dari #323.
+- **`prepare`** menampung parsing body/query, cek `Idempotency-Key`, dan
+  request hashing — tetap SEBELUM koneksi diambil, jadi body cacat tidak
+  memakan slot pool.
+- Larangan `Promise.all` atas satu `tx` tetap berlaku penuh di dalam
+  `handler` (#324) — factory tidak menghilangkannya, hanya mendokumentasikannya
+  di tipe `tx`.
+
+Gerbang `bun run api:tenant-route:check`
+(`scripts/tenant-route-factory-check.ts`) menolak rute BARU di
+`src/pages/api` yang memanggil `withTenant` langsung. Migrasi rute lama
+berjalan bertahap per modul; daftar `NOT_YET_MIGRATED` di gerbang itu adalah
+buku utang yang **hanya boleh menyusut** — entri yang sudah dimigrasi wajib
+dihapus, dan gerbangnya gagal kalau tidak.
+
 ## Transaction wrapper dan locking
 
 1. Transaction untuk semua mutation multi-table.

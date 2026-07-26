@@ -147,7 +147,7 @@ temporary hop).
 
 ### Performance follow-up (R-M3, tracked)
 
-`resolvePublicRedirectForRequest` (`src/lib/seo/redirect-middleware.ts`) runs a full
+`resolvePublicRedirectForRequest` (`src/modules/seo-distribution/presentation/redirect-middleware.ts`) runs a full
 `withTenant` transaction (module-enabled + verified-hosts + primary-host + a chain
 point lookup) on **every** eligible public request, even for tenants with zero active
 rules. A "does this tenant have any live rule?" short-circuit is **deliberately

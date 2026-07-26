@@ -206,7 +206,7 @@ suite("email dispatcher", () => {
       expect(row.status).toBe("sent");
       expect(row.provider_message_id).toBe("fake-message-id-123");
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -251,7 +251,7 @@ suite("email dispatcher", () => {
       expect(row.retry_count).toBe(1);
       expect(row.last_error).toContain("Invalid Recipient");
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -310,7 +310,7 @@ suite("email dispatcher", () => {
       expect(requestCount).toBe(3);
       expect(await countDeliveryAttempts(id)).toBe(3);
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -348,7 +348,7 @@ suite("email dispatcher", () => {
       expect(row.status).toBe("failed");
       expect(row.last_error).toContain("does.not_exist");
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 
@@ -404,7 +404,7 @@ suite("email dispatcher", () => {
       expect(row.status).toBe("suppressed");
       expect(await countDeliveryAttempts(id)).toBe(0);
     } finally {
-      server.stop(true);
+      await server.stop(true);
     }
   });
 

@@ -47,6 +47,24 @@ Konvensi nyata repo ini (bukan sub-folder per domain): file **flat** langsung di
 - Setiap fitur baru minimal punya unit test logic + satu integration/contract test.
 - Test tenant-scoped memakai tenant context; jangan bergantung data global.
 
+## Gerbang analisis statis (Issue #369)
+
+Test bukan satu-satunya jaring. Sebelum PR jalankan juga ketiganya (semuanya bagian `bun run check` + job "Quality"):
+
+- `bun run typecheck` — `tsc --noEmit`. **Tidak menyentuh `.astro` sama sekali**; ekstensi tak dikenal dilewati diam-diam meski ada di `include`.
+- `bun run typecheck:astro` — `astro check`. Satu-satunya gerbang yang mengetik-periksa frontmatter `.astro` **dan** isi `<script>` inline (≈19,2k baris kode browser). Kalau kamu menyunting `.astro`, gerbang inilah yang relevan.
+- `bun run lint` — `prettier --check` (format) **+ ESLint** (kebenaran: `no-floating-promises`, `no-misused-promises`, `no-control-regex`).
+
+**Dua kompiler TypeScript, sengaja.** Root tetap `typescript@7` (native) dan memeriksa 100% `.ts` lewat `tsc --noEmit`. `astro check` + `typescript-eslint` masih butuh API programatik TypeScript yang TS 7 tidak punya, jadi keduanya dikarantina di `tools/static-analysis/` dengan `node_modules` sendiri berisi `typescript@6.0.3`, dijalankan oleh `scripts/static-analysis.ts` dengan cwd = root repo. Sebelum menjalankan gerbangnya: `bun run static-analysis:install`. Buktikan pembagiannya: `bun run static-analysis:versions`.
+
+Yang perlu diketahui saat menulis kode:
+
+- Type-aware ESLint **tidak berjalan di dalam `<script>` inline** (berkas virtual `page.astro/1_1.ts` tidak ada di program tsconfig mana pun) **maupun di frontmatter `.astro`** (`astro-eslint-parser` me-resolve `typescript` dari cwd = root = TS 7). Di sana yang jalan hanya aturan sintaks; keamanan tipe `.astro` sepenuhnya datang dari `astro check`.
+- `@typescript-eslint/no-misused-promises` **crash** pada frontmatter `.astro`, jadi sengaja tidak aktif untuk `.astro`.
+- Kalau sebuah gerbang tiba-tiba hijau setelah kamu mengubah konfigurasinya, curigai gerbang MATI: `scripts/static-analysis.ts` menolak hasil yang menyentuh <90% pohon sumber justru karena kegagalan di area ini sunyi (ESLint menelan error blok `<script>` dan tetap exit 0).
+- Jangan pakai `@ts-ignore`/`any`/pelonggaran global untuk melewati gerbang. Kalau sebuah berkas belum bisa diperbaiki, tambahkan ke daftar pengecualian per-berkas di `tools/static-analysis/eslint.config.mjs` (`NO_MISUSED_PROMISES_EXEMPT`) beserta alasannya, dan catat di doc 07 §Gerbang analisis statis — daftar itu harus menyusut.
+- Pola SSR yang sering memicu error `astro check`: `let x: T | null = null` lalu ditulisi **dari dalam callback** `withTenant` — analisis alur TypeScript tidak melihat penulisan itu, `x` menyempit jadi `never` di seluruh template. Kembalikan nilainya sebagai **return value** callback (dan wajib `{ unavailableBehavior: "throw" }`, lihat AGENTS.md #8).
+
 ## Gotcha integration test (real-handler, `tests/integration/*.integration.test.ts`)
 
 Dari #271/#272/#273 (harness `tests/integration/harness.ts`) — hemat re-investigasi:
@@ -72,3 +90,16 @@ Dari #271/#272/#273 (harness `tests/integration/harness.ts`) — hemat re-invest
 - **Uji balik test-nya sendiri sebelum percaya.** Setelah menulis suite yang menjaga sesuatu, rusak dulu kode yang dijaganya dan pastikan suite itu MERAH. Praktik ini menangkap dua hal nyata di #363/#364: transport lama dikembalikan → 4 dari 8 gagal; pemanggilan invalidasi dilepas dari rute `publish` → 3 dari 6 gagal. Test yang belum pernah terbukti bisa gagal tidak lebih baik dari test yang di-mock.
 - **Mock tidak bisa menjaga lapisan yang di-mock.** Unit test men-stub `fetch`, jadi bug transport (`fetch` Bun menulis ulang metode tak dikenal menjadi `GET`) mustahil tertangkap di sana — hanya layanan sungguhan yang bisa. Kalau sebuah cacat hidup di seam antar-komponen, ujilah seam itu, bukan komponennya.
 - Reproduksi SQL cepat tetap via `docker exec <pg-container> psql` (pakai `-i` bila memberi input lewat stdin — tanpanya psql membaca kosong lalu exit 0).
+
+## Gotcha a11y & link checking pada permukaan publik (#296)
+
+Dari `public-discovery-a11y.e2e.ts` + `scripts/link-check.ts` (2026-07-26):
+
+- **Tiga mekanisme locale berbeda di permukaan publik — jangan anggap satu mewakili semuanya.** (1) Halaman hermetik (`/newsletter/demo`, `/comments/demo`) memakai **cookie** `awcms_micro_locale`; (2) shell daftar/pencarian (`renderPublicPageShell` lewat `/news`, `/blog/{tenantCode}`) memakai **`default_locale` TENANT** — cookie tidak berpengaruh, jadi cakupan ID butuh tenant kedua ber-`default_locale='id'`; (3) `/search` memakai **query param `?locale=`** (`normalizeSearchLocale`), juga bukan cookie; (4) template artikel memakai **locale POST-nya sendiri**. Menguji "EN + ID" dengan satu mekanisme saja = menguji Inggris dua kali.
+- **Scan happy-path tidak menyentuh state yang paling sering dilihat pengunjung.** `renderSearchPageBody` memilih SATU dari empat cabang DOM (belum ada query / terlalu pendek / tanpa hasil / ada hasil) dan `notFoundHtmlResponse` adalah dokumen terpisah. Scan cabang "ada hasil" tidak mengatakan apa pun tentang tiga lainnya. Scan keempatnya + 404.
+- **Assert status HTTP SEBELUM menjalankan axe.** Halaman error dengan tiga elemen selalu "bebas pelanggaran" — tanpa assert status, route yang diam-diam 404 dilaporkan hijau.
+- **Gate a11y harus dibuktikan bisa MERAH.** Kontrol negatif yang murah: `page.addInitScript` menyuntik `<img>` tanpa `alt` (untuk axe) dan `*, *:focus { outline: none !important; box-shadow: none !important }` (untuk assertion focus-visible). Jangan laporkan hijau sebelum pernah melihatnya merah.
+- **Tenant bare LULUS route publik `/news`, `/blog/{code}`, `/search`** (diverifikasi 2026-07-26): tenant + `tenant_domains` primary aktif + `awcms_micro_setup_state` sudah cukup, tidak perlu setup wizard. Catatan lama "tenant bare tidak lolos gate route publik blog/news" tidak lagi berlaku untuk jalur ini.
+- **`bun run link:check -- --url=…`** (`scripts/link-check.ts`) = pemeriksa tautan operator untuk URL apa pun: merayapi graf halaman + `robots.txt` `Sitemap:` + sitemap index/anak, memverifikasi anchor internal, `rel=canonical`, `rel=alternate hreflang`, tautan feed, dan pagination. Exit 0/1/2 (2 = usage atau entry URL sendiri tidak bisa dijangkau — crawl yang tidak menjangkau apa pun TIDAK pernah dilaporkan hijau). JSON ke stdout, `--json-output=<path>` untuk artefak bukti.
+- **Internal-vs-eksternal ditentukan oleh HOST, bukan origin penuh.** Terukur di app ini: `<loc>` sitemap memakai `https://` sementara permalink/share di halaman yang sama memakai `http://`. Perbandingan origin-ketat mengklasifikasikan separuh tautan situs sendiri sebagai "eksternal, tidak diperiksa" lalu melaporkan hijau dengan percaya diri. Pakai `--site-origin=` saat memeriksa deployment lewat alamat lain (host staging, IP internal di balik CDN, `localhost` sebelum cutover DNS).
+- **Jangan strip komentar/`<script>` lalu rescan** saat mengekstrak tautan dari HTML — rantai `.replace()` semacam itu memicu CodeQL `js/incomplete-multi-character-sanitization` DAN salah pada markup bersarang. Pakai pemindai satu-lintasan yang melewati komentar/CDATA/`<script>`/`<style>` sambil berjalan (lihat `scanTags` di `scripts/link-check.ts`).

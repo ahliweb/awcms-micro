@@ -1,0 +1,97 @@
+---
+/**
+ * TextField — a labelled single-line text/password/url input (Issue #372).
+ *
+ * Measured on `0a8c3ba5`: **27 of 51** admin pages contain a
+ * `type="text|password|url|email|number"` input, and the dominant shape by
+ * far is the implicit-label form —
+ * `<label>{t("…")}<input type="text" name="…" required /></label>` —
+ * `admin/security.astro` alone repeats it 14 times across its two SSO
+ * provider forms, `admin/tenant/domains.astro` 4 more.
+ *
+ * That implicit form is the DEFAULT here (`layout="stacked"`) precisely
+ * because it is what those pages' stylesheets are written against
+ * (`.sec-form label { display: flex; flex-direction: column }`,
+ * `.edit-domain-form label { … }`), so migrating a screen changes no CSS
+ * and no rendered layout. `layout="explicit"` emits the `for`/`id` pair
+ * instead, for a container whose label and control are siblings.
+ *
+ * Deliberately NOT built on `FormField.astro`: that component wraps the
+ * control in its own `.form-field`/`.form-field-control` divs, which those
+ * two stylesheets do not style — swapping it in would have visibly changed
+ * two live screens. `FormField` remains the richer primitive for screens
+ * that already use it (label + hint + error + `data-invalid`); this is the
+ * plain one that matches the markup most admin forms actually have.
+ *
+ * **No CSS here** — same reasoning as `CheckboxField.astro`/`FieldHint.astro`.
+ */
+interface Props {
+  name: string;
+  label: string;
+  type?: "text" | "password" | "url" | "email" | "number" | "search";
+  value?: string | number;
+  id?: string;
+  layout?: "stacked" | "explicit";
+  required?: boolean;
+  pattern?: string;
+  placeholder?: string;
+  maxlength?: number;
+  minlength?: number;
+  autocomplete?: string;
+  spellcheck?: boolean;
+}
+
+const {
+  name,
+  label,
+  type = "text",
+  value,
+  id,
+  layout = "stacked",
+  required = false,
+  pattern,
+  placeholder,
+  maxlength,
+  minlength,
+  autocomplete,
+  spellcheck
+} = Astro.props;
+---
+
+{
+  layout === "explicit" ? (
+    <Fragment>
+      <label for={id}>{label}</label>
+      <input
+        id={id}
+        type={type}
+        name={name}
+        value={value}
+        required={required}
+        pattern={pattern}
+        placeholder={placeholder}
+        maxlength={maxlength}
+        minlength={minlength}
+        autocomplete={autocomplete}
+        spellcheck={spellcheck}
+      />
+    </Fragment>
+  ) : (
+    <label>
+      {label}
+      <input
+        id={id}
+        type={type}
+        name={name}
+        value={value}
+        required={required}
+        pattern={pattern}
+        placeholder={placeholder}
+        maxlength={maxlength}
+        minlength={minlength}
+        autocomplete={autocomplete}
+        spellcheck={spellcheck}
+      />
+    </label>
+  )
+}

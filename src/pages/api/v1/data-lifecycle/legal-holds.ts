@@ -1,17 +1,9 @@
-import type { APIRoute } from "astro";
-
 import {
   fail,
   jsonResponse,
   ok
 } from "../../../../modules/_shared/api-response";
-import { getDatabaseClient } from "../../../../lib/database/client";
-import { withTenant } from "../../../../lib/database/tenant-context";
-import { hashSessionToken } from "../../../../lib/auth/session-token";
-import {
-  authorizeInTransaction,
-  resolveAuthInputs
-} from "../../../../modules/identity-access/application/access-guard";
+import { defineTenantRoute } from "../../../../modules/_shared/tenant-route";
 import {
   computeRequestHash,
   findIdempotencyRecord,
@@ -24,50 +16,39 @@ import {
 
 const IDEMPOTENCY_SCOPE = "data_lifecycle_legal_hold_create";
 
-/** `GET /api/v1/data-lifecycle/legal-holds` (Issue #745) — list legal holds for the caller's tenant, optionally filtered by `status`/`descriptorKey`. */
-export const GET: APIRoute = async ({ request, cookies, url }) => {
-  const { tenantId, token } = resolveAuthInputs(request, cookies);
+/**
+ * `GET /api/v1/data-lifecycle/legal-holds` (Issue #745) — list legal holds
+ * for the caller's tenant, optionally filtered by `status`/`descriptorKey`.
+ *
+ * `workClass: "interactive"` (Issue #370) — admin-screen read; re-affirms
+ * the class it already ran under, no runtime change.
+ */
+export const GET = defineTenantRoute({
+  workClass: "interactive",
+  authorize: {
+    moduleKey: "data_lifecycle",
+    activityCode: "legal_hold",
+    action: "read"
+  },
+  prepare: ({ url }) => {
+    const statusParam = url.searchParams.get("status");
 
-  if (!tenantId) {
-    return fail(400, "TENANT_REQUIRED", "Tenant header is required.");
-  }
-  if (!token) {
-    return fail(401, "AUTH_REQUIRED", "Authentication required.");
-  }
-
-  const sql = getDatabaseClient();
-  const tokenHash = hashSessionToken(token);
-  const now = new Date();
-  const statusParam = url.searchParams.get("status");
-  const descriptorKeyParam = url.searchParams.get("descriptorKey");
-
-  if (statusParam && statusParam !== "active" && statusParam !== "released") {
-    return fail(
-      400,
-      "VALIDATION_ERROR",
-      'status must be "active" or "released".'
-    );
-  }
-
-  return withTenant(sql, tenantId, async (tx) => {
-    const auth = await authorizeInTransaction(tx, tenantId, tokenHash, now, {
-      moduleKey: "data_lifecycle",
-      activityCode: "legal_hold",
-      action: "read"
-    });
-
-    if (!auth.allowed) {
-      return auth.denied;
+    if (statusParam && statusParam !== "active" && statusParam !== "released") {
+      return fail(
+        400,
+        "VALIDATION_ERROR",
+        'status must be "active" or "released".'
+      );
     }
 
-    const holds = await listLegalHolds(tx, tenantId, {
-      status: statusParam as "active" | "released" | undefined,
-      descriptorKey: descriptorKeyParam ?? undefined
-    });
-
-    return ok({ legalHolds: holds });
-  });
-};
+    return {
+      status: (statusParam as "active" | "released" | null) ?? undefined,
+      descriptorKey: url.searchParams.get("descriptorKey") ?? undefined
+    };
+  },
+  handler: async ({ tx, tenantId, prepared }) =>
+    ok({ legalHolds: await listLegalHolds(tx, tenantId, prepared) })
+});
 
 type CreateLegalHoldBody = {
   descriptorKey?: string | null;
@@ -77,71 +58,76 @@ type CreateLegalHoldBody = {
   endsAt?: unknown;
 };
 
-/** `POST /api/v1/data-lifecycle/legal-holds` (Issue #745) — create a legal hold. High-risk mutation: requires `Idempotency-Key`, permission-gated (`data_lifecycle.legal_hold.create`), reason-required, audited `critical`. */
-export const POST: APIRoute = async ({ request, cookies, locals }) => {
-  const { tenantId, token } = resolveAuthInputs(request, cookies);
-
-  if (!tenantId) {
-    return fail(400, "TENANT_REQUIRED", "Tenant header is required.");
-  }
-  if (!token) {
-    return fail(401, "AUTH_REQUIRED", "Authentication required.");
-  }
-
-  const idempotencyKey = request.headers.get("idempotency-key");
-  if (!idempotencyKey) {
-    return fail(
-      400,
-      "IDEMPOTENCY_REQUIRED",
-      "Idempotency-Key header is required."
-    );
-  }
-
-  let body: CreateLegalHoldBody;
-  try {
-    body = (await request.json()) as CreateLegalHoldBody;
-  } catch {
-    return fail(400, "VALIDATION_ERROR", "Request body must be valid JSON.");
-  }
-
-  const descriptorKey =
-    typeof body.descriptorKey === "string" ? body.descriptorKey : null;
-  const scopeDescription =
-    typeof body.scopeDescription === "string" ? body.scopeDescription : "";
-  const reason = typeof body.reason === "string" ? body.reason : "";
-  const authorityReference =
-    typeof body.authorityReference === "string" ? body.authorityReference : "";
-  const endsAt =
-    typeof body.endsAt === "string" && body.endsAt.length > 0
-      ? new Date(body.endsAt)
-      : null;
-
-  const requestHash = computeRequestHash(body);
-  const sql = getDatabaseClient();
-  const tokenHash = hashSessionToken(token);
-  const now = new Date();
-  const correlationId = locals.correlationId;
-
-  return withTenant(sql, tenantId, async (tx) => {
-    const auth = await authorizeInTransaction(tx, tenantId, tokenHash, now, {
-      moduleKey: "data_lifecycle",
-      activityCode: "legal_hold",
-      action: "create"
-    });
-
-    if (!auth.allowed) {
-      return auth.denied;
+/**
+ * `POST /api/v1/data-lifecycle/legal-holds` (Issue #745) — create a legal
+ * hold. High-risk mutation: requires `Idempotency-Key`, permission-gated
+ * (`data_lifecycle.legal_hold.create`), reason-required, audited `critical`.
+ *
+ * `workClass: "interactive"` (Issue #370) — a short, user-initiated write
+ * from an admin screen. NOT `critical_transaction`: that class is the wider
+ * budget reserved for the posting path, and moving this route into it would
+ * be a real behaviour change, not a transcription of the status quo. It
+ * re-affirms the class the route already ran under.
+ */
+export const POST = defineTenantRoute({
+  workClass: "interactive",
+  authorize: {
+    moduleKey: "data_lifecycle",
+    activityCode: "legal_hold",
+    action: "create"
+  },
+  prepare: async ({ request }) => {
+    const idempotencyKey = request.headers.get("idempotency-key");
+    if (!idempotencyKey) {
+      return fail(
+        400,
+        "IDEMPOTENCY_REQUIRED",
+        "Idempotency-Key header is required."
+      );
     }
 
+    let body: CreateLegalHoldBody;
+    try {
+      body = (await request.json()) as CreateLegalHoldBody;
+    } catch {
+      return fail(400, "VALIDATION_ERROR", "Request body must be valid JSON.");
+    }
+
+    return {
+      idempotencyKey,
+      // Hash of the RAW parsed body, exactly as before — the replay/conflict
+      // identity must not silently change shape under this refactor.
+      requestHash: computeRequestHash(body),
+      input: {
+        descriptorKey:
+          typeof body.descriptorKey === "string" ? body.descriptorKey : null,
+        scopeDescription:
+          typeof body.scopeDescription === "string"
+            ? body.scopeDescription
+            : "",
+        reason: typeof body.reason === "string" ? body.reason : "",
+        authorityReference:
+          typeof body.authorityReference === "string"
+            ? body.authorityReference
+            : "",
+        endsAt:
+          typeof body.endsAt === "string" && body.endsAt.length > 0
+            ? new Date(body.endsAt)
+            : null
+      }
+    };
+  },
+  handler: async ({ tx, tenantId, locals, auth, prepared }) => {
+    // Sequential `await`s on one `tx` — never `Promise.all` (#324).
     const existingIdempotency = await findIdempotencyRecord(
       tx,
       tenantId,
       IDEMPOTENCY_SCOPE,
-      idempotencyKey
+      prepared.idempotencyKey
     );
 
     if (existingIdempotency) {
-      if (existingIdempotency.requestHash !== requestHash) {
+      if (existingIdempotency.requestHash !== prepared.requestHash) {
         return fail(
           409,
           "IDEMPOTENCY_CONFLICT",
@@ -157,8 +143,8 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
       tx,
       tenantId,
       auth.context.tenantUserId,
-      { descriptorKey, scopeDescription, reason, authorityReference, endsAt },
-      correlationId
+      prepared.input,
+      locals.correlationId
     );
 
     if (!result.ok) {
@@ -178,12 +164,12 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
       tx,
       tenantId,
       IDEMPOTENCY_SCOPE,
-      idempotencyKey,
-      requestHash,
+      prepared.idempotencyKey,
+      prepared.requestHash,
       200,
       successBody
     );
 
     return successResponse;
-  });
-};
+  }
+});

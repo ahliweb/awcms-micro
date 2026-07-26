@@ -6,6 +6,27 @@
  * `Idempotency-Key` per submission and echoes the render-time timing token +
  * honeypot for anti-abuse.
  */
+import { safeErrorDetail } from "../../../lib/logging/error-sanitizer";
+
+/**
+ * Local twin of `admin-form-client`'s `asyncHandler` (Issue #369). This is a
+ * PUBLIC island: importing the admin helper here would pull the whole admin
+ * form client into the public bundle for the sake of five lines, so the
+ * wrapper is restated instead of shared. Same contract — an async listener
+ * whose rejection would otherwise vanish gets a rejection path.
+ */
+function asyncHandler<E extends Event>(
+  handler: (event: E) => Promise<void>
+): (event: E) => void {
+  return (event) => {
+    handler(event).catch((error: unknown) => {
+      console.error(
+        `Unhandled error in async event handler: ${safeErrorDetail(error)}`
+      );
+    });
+  };
+}
+
 type Strings = {
   submitting: string;
   submitError: string;
@@ -144,59 +165,62 @@ export function initCommentsSection(root: HTMLElement): void {
 
   moreBtn?.addEventListener("click", () => void loadList(true));
 
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const data = new FormData(form);
-    const submitBtn = form.querySelector<HTMLButtonElement>("[type=submit]");
-    if (submitBtn) submitBtn.disabled = true;
-    setStatus(strings.submitting, "");
+  form.addEventListener(
+    "submit",
+    asyncHandler(async (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const submitBtn = form.querySelector<HTMLButtonElement>("[type=submit]");
+      if (submitBtn) submitBtn.disabled = true;
+      setStatus(strings.submitting, "");
 
-    const parentId = (parentInput?.value || "").trim() || null;
-    const payload = {
-      resourceType,
-      resourceId,
-      locale: locale || undefined,
-      body: String(data.get("body") ?? ""),
-      authorDisplayName: String(data.get("authorDisplayName") ?? "") || null,
-      authorEmail: String(data.get("authorEmail") ?? "") || null,
-      subscribeToReplies: data.get("subscribeToReplies") === "1",
-      website: String(data.get("website") ?? ""),
-      timingToken,
-      parentId
-    };
+      const parentId = (parentInput?.value || "").trim() || null;
+      const payload = {
+        resourceType,
+        resourceId,
+        locale: locale || undefined,
+        body: String(data.get("body") ?? ""),
+        authorDisplayName: String(data.get("authorDisplayName") ?? "") || null,
+        authorEmail: String(data.get("authorEmail") ?? "") || null,
+        subscribeToReplies: data.get("subscribeToReplies") === "1",
+        website: String(data.get("website") ?? ""),
+        timingToken,
+        parentId
+      };
 
-    const url = parentId
-      ? `/api/v1/comments/${encodeURIComponent(parentId)}/replies`
-      : "/api/v1/comments";
+      const url = parentId
+        ? `/api/v1/comments/${encodeURIComponent(parentId)}/replies`
+        : "/api/v1/comments";
 
-    try {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "idempotency-key": uuid()
-        },
-        body: JSON.stringify(payload)
-      });
-      const json = await res.json();
-      const status = json?.data?.status;
-      if (status === "approved") {
-        form.reset();
-        if (parentInput) parentInput.value = "";
-        await loadList(false);
-        setStatus("", "");
-      } else {
-        // pending / received — held for moderation (or neutral). Same message.
-        form.reset();
-        if (parentInput) parentInput.value = "";
-        setStatus(strings.awaitingModeration, "success");
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "idempotency-key": uuid()
+          },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        const status = json?.data?.status;
+        if (status === "approved") {
+          form.reset();
+          if (parentInput) parentInput.value = "";
+          await loadList(false);
+          setStatus("", "");
+        } else {
+          // pending / received — held for moderation (or neutral). Same message.
+          form.reset();
+          if (parentInput) parentInput.value = "";
+          setStatus(strings.awaitingModeration, "success");
+        }
+      } catch {
+        setStatus(strings.submitError, "error");
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
       }
-    } catch {
-      setStatus(strings.submitError, "error");
-    } finally {
-      if (submitBtn) submitBtn.disabled = false;
-    }
-  });
+    })
+  );
 
   void loadList(false);
 }

@@ -1,0 +1,81 @@
+---
+/**
+ * SelectField — a labelled `<select>` built from an options array (Issue
+ * #372).
+ *
+ * Measured on `0a8c3ba5`: **31 of 51** admin pages contain a `<select>`,
+ * and the ones that matter are hand-written option loops —
+ * `admin/tenant/domains.astro` alone has 8 (domain type, route mode,
+ * status, verification method, ×2 forms), `admin/analytics.astro` 3 (range
+ * + the two session filters). Each was 12-16 lines of `<label>` + `.map()`
+ * + `<option selected={x === value}>`; as a prop it is one array.
+ *
+ * Two layouts, because both already exist in this codebase and each has a
+ * page stylesheet written against it:
+ *   - `inline` (default) — `<label for>` and `<select id>` as SIBLINGS, the
+ *     shape `admin/analytics.astro`'s `.analytics-toolbar` flex row needs.
+ *   - `stacked` — `<label>text<select /></label>`, the shape
+ *     `admin/tenant/domains.astro`'s `.edit-domain-form label { flex-direction:
+ *     column }` rule is written against.
+ * Both render exactly what the migrated pages rendered before, so no
+ * stylesheet had to change. `inline` is the default because an explicit
+ * `for`/`id` association is the more robust of the two (WCAG 1.3.1) and is
+ * what a new screen should reach for.
+ *
+ * **No CSS here** — same reasoning as the other form primitives added by
+ * this issue: the pages disagree on spacing, and inventing a shared rule
+ * would have silently moved controls on live screens.
+ */
+export interface SelectFieldOption {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  name: string;
+  label: string;
+  options: SelectFieldOption[];
+  /** Currently selected `value`. */
+  selected?: string | null;
+  /** Required for `layout="inline"` (the `for`/`id` pair). */
+  id?: string;
+  layout?: "inline" | "stacked";
+  required?: boolean;
+}
+
+const {
+  name,
+  label,
+  options,
+  selected = null,
+  id,
+  layout = "inline",
+  required = false
+} = Astro.props;
+---
+
+{
+  layout === "stacked" ? (
+    <label>
+      {label}
+      <select name={name} required={required}>
+        {options.map((option) => (
+          <option value={option.value} selected={option.value === selected}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  ) : (
+    <Fragment>
+      <label for={id}>{label}</label>
+      <select id={id} name={name} required={required}>
+        {options.map((option) => (
+          <option value={option.value} selected={option.value === selected}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </Fragment>
+  )
+}

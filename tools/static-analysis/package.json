@@ -1,0 +1,15 @@
+{
+  "name": "awcms-micro-static-analysis",
+  "private": true,
+  "type": "module",
+  "description": "Quarantined static-analysis toolchain (Issue #369). Lives in its own node_modules so that `typescript@6` — which `astro check` and `typescript-eslint` still require for TypeScript's programmatic API — never reaches the repository root, which stays on `typescript@7`. Run its binaries with cwd = repository root; see scripts/static-analysis.ts.",
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.0",
+    "eslint-plugin-astro": "^3.0.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.65.0"
+  }
+}
