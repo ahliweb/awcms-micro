@@ -1,5 +1,22 @@
 # AWCMS-Micro — Full Online Website (Modular Monolith Standard)
 
+> **⛔ ARSIP sejak 11 Agustus 2026 — repo ini tidak dikembangkan lagi.**
+>
+> Pengembangan AWCMS berlangsung di **dua repo saja**:
+> [`ahliweb/awcms`](https://github.com/ahliweb/awcms) — backend dan **admin SISTEM**, system of record — dan
+> [`ahliweb/awcms-astro`](https://github.com/ahliweb/awcms-astro) — **web publik** dan **admin USER**.
+> Kebutuhan platform lain (mis. aplikasi mobile) mendapat repo sendiri dengan pola `awcms-<platform>`,
+> bukan cabang dari repo ini.
+>
+> Dasarnya **ADR-0055** (2 Agustus 2026) dan **ADR-0070** (8 Agustus 2026) milik `ahliweb/awcms`:
+> repo ini **bukan standar, bukan sumber port, bukan template keluarga**. Tabel "tiga template sejajar"
+> di §Posisi dalam keluarga AWCMS di bawah **sudah dicabut** — ia dipertahankan sebagai catatan sejarah,
+> bukan peta yang berlaku.
+>
+> **Seluruh isi di bawah adalah catatan historis per 26 Juli 2026** — tanggal commit manusia terakhir —
+> dan tidak menggambarkan arah pengembangan hari ini. Repositori di-set read-only di GitHub; issue dan
+> PR yang masih terbuka ikut beku dan tidak akan ditindaklanjuti.
+
 [![CI](https://github.com/ahliweb/awcms-micro/actions/workflows/ci.yml/badge.svg)](https://github.com/ahliweb/awcms-micro/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/ahliweb/awcms-micro/actions/workflows/codeql.yml/badge.svg)](https://github.com/ahliweb/awcms-micro/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-informational.svg)](LICENSE)
