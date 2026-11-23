@@ -28,6 +28,7 @@ import type { APIContext, APIRoute } from "astro";
 import {
   getDatabaseClient,
   getSetupDatabaseClient,
+  resetDatabaseClientsForTests,
   getWorkerDatabaseClient
 } from "../../src/lib/database/client";
 
@@ -135,6 +136,11 @@ export async function provisionAppRole(): Promise<void> {
   appUrl.username = "awcms_micro_app";
   appUrl.password = APP_ROLE_TEST_PASSWORD;
   process.env.DATABASE_URL = appUrl.toString();
+  // A client memoized earlier in this process (by a unit test, or by an
+  // integration file that ran before this one) may still be connected as the
+  // privileged role it was created under — RLS does not apply to it. Drop it
+  // so the next getDatabaseClient() really connects as awcms_micro_app.
+  resetDatabaseClientsForTests("app");
 }
 
 /**
@@ -154,6 +160,7 @@ export async function provisionWorkerRole(): Promise<void> {
   workerUrl.username = "awcms_micro_worker";
   workerUrl.password = WORKER_ROLE_TEST_PASSWORD;
   process.env.WORKER_DATABASE_URL = workerUrl.toString();
+  resetDatabaseClientsForTests("worker");
 }
 
 /**
@@ -174,6 +181,7 @@ export async function provisionSetupRole(): Promise<void> {
   setupUrl.username = "awcms_micro_setup";
   setupUrl.password = SETUP_ROLE_TEST_PASSWORD;
   process.env.SETUP_DATABASE_URL = setupUrl.toString();
+  resetDatabaseClientsForTests("setup");
 }
 
 /**

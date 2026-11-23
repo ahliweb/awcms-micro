@@ -8,6 +8,7 @@ import {
 } from "bun:test";
 import type { APIContext, APIRoute, AstroCookies } from "astro";
 
+import { resetDatabaseClientsForTests } from "../../src/lib/database/client";
 import {
   getDatabaseCircuitBreaker,
   resetDatabaseCircuitBreakerForTests
@@ -68,24 +69,33 @@ function authHeaders(): Record<string, string> {
  * throws without a connection string. Every assertion below stops at or
  * before the pool gate (an OPEN circuit breaker short-circuits inside
  * `withTenant` before `sql.begin`), so no connection is ever opened — but
- * the env var still has to exist. Only set when absent: a run WITH a real
- * `DATABASE_URL` (the integration configuration) must keep using it,
- * because `getNamedDatabaseClient` memoizes the client per process.
+ * the env var still has to exist.
+ *
+ * It is ALWAYS pointed at an unused sentinel here, even when the run has a
+ * real `DATABASE_URL`. `getNamedDatabaseClient` memoizes the pool for the
+ * whole `bun test` process, so reusing the real URL (which in the
+ * integration configuration is the privileged migration-owner role) made
+ * this unit file the one that decided which role every later integration
+ * file connected as: RLS-isolation tests that happened to run after it
+ * passed or failed on file order alone. The sentinel pool is dropped again
+ * in `afterAll`, and the real URL restored.
  */
-const HAD_DATABASE_URL = Boolean(process.env.DATABASE_URL);
+const PREVIOUS_DATABASE_URL = process.env.DATABASE_URL;
 
 describe("defineTenantRoute (Issue #370)", () => {
   beforeAll(() => {
-    if (!HAD_DATABASE_URL) {
-      process.env.DATABASE_URL =
-        "postgres://awcms_micro_unit_test@127.0.0.1:1/unused";
-    }
+    resetDatabaseClientsForTests("app");
+    process.env.DATABASE_URL =
+      "postgres://awcms_micro_unit_test@127.0.0.1:1/unused";
   });
 
   afterAll(() => {
-    if (!HAD_DATABASE_URL) {
+    if (PREVIOUS_DATABASE_URL === undefined) {
       delete process.env.DATABASE_URL;
+    } else {
+      process.env.DATABASE_URL = PREVIOUS_DATABASE_URL;
     }
+    resetDatabaseClientsForTests("app");
     resetDatabaseCircuitBreakerForTests();
     resetWorkClassGatesForTests();
   });
