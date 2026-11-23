@@ -427,11 +427,11 @@ mengembalikan `200`, objeknya masih menyajikan `HTTP/2 200` dengan
 `cf-cache-status: DYNAMIC` (jadi bukan artefak CDN). Perlakukan job ini sebagai
 bagian dari jaminan retensi/penghapusan, bukan sekadar housekeeping.
 
-Contoh jadwal yang terpasang di `dinkes-prod` (harian 03:45, setelah backup
+Contoh jadwal yang terpasang di `prod-host` (harian 03:45, setelah backup
 02:30 dan sebelum restore-drill mingguan 03:17 Minggu):
 
 ```cron
-45 3 * * * /home/admin1/jobs/awcms-micro-media-reconcile.sh
+45 3 * * * /home/<ops-user>/jobs/awcms-micro-media-reconcile.sh
 ```
 
 ## Instance staging (target non-produksi untuk chaos drill)
@@ -446,7 +446,7 @@ non-produksi, bukan sekadar belum dijalankan.
 | Aspek    | Nilai                                                                                 |
 | -------- | ------------------------------------------------------------------------------------- |
 | Aplikasi | Coolify app `pd1wiamufqx3cnzy6gmilh1i`, build dari `main` via `Dockerfile.production` |
-| Domain   | `awcms-micro-staging.ahlikoding.com` (router Traefik + resolver `letsencrypt`)        |
+| Domain   | `awcms-micro-staging.example.com` (router Traefik + resolver `letsencrypt`)           |
 | Database | `postgres:18.4` Coolify-managed `pu25s9f9xiuwwobxn2azp3en`, DB `awcms_micro_staging`  |
 | Peran DB | `awcms_micro_app` least-privilege sendiri (bukan superuser, bukan BYPASSRLS)          |
 | Isolasi  | `AUTH_JWT_SECRET`/`COMMENTS_TIMING_SECRET` sendiri; **R2, email, dan sync semua OFF** |
@@ -472,7 +472,7 @@ tidak butuh sudo, karena Traefik yang memegang :80/:443, bukan nginx):
    `ALTER ROLE awcms_micro_app LOGIN PASSWORD …` untuk mengaktifkan peran runtime.
 3. `POST /api/v1/applications/public` dengan `build_pack: "dockerfile"`,
    `dockerfile_location: "/Dockerfile.production"`, `ports_exposes: "4321"`,
-   `domains: "https://awcms-micro-staging.ahlikoding.com"`,
+   `domains: "https://awcms-micro-staging.example.com"`,
    `health_check_enabled: false` (image tidak punya curl/wget — sama seperti
    produksi).
 4. `POST /api/v1/applications/<uuid>/envs` per variabel, **lalu jalankan
@@ -483,7 +483,7 @@ tidak butuh sudo, karena Traefik yang memegang :80/:443, bukan nginx):
 5. `GET /api/v1/deploy?uuid=<app-uuid>`.
 
 **Verifikasi tanpa DNS.** Sebelum record DNS ada, buktikan routing-nya lewat
-header Host: `curl -H 'Host: awcms-micro-staging.ahlikoding.com'
+header Host: `curl -H 'Host: awcms-micro-staging.example.com'
 http://127.0.0.1/api/v1/health` dari server → `302` ke https, dan versi
 `https://127.0.0.1` (dengan `-k`) → `200`. Sertifikat asli terbit otomatis
 begitu record DNS publik menunjuk ke server ini.

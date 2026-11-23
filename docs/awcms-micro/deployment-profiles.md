@@ -642,8 +642,8 @@ lengkap.
 
 Audit tiga fase (2026-07-26) menemukan development, staging, dan production
 cocok hanya karena kebetulan: production punya tenant `default` dengan owner
-`admin@ahlikoding.com`, staging punya `staging` dengan
-`owner@staging.ahlikoding.com`, dan development tidak punya jalur seed sama
+`admin@example.com`, staging punya `staging` dengan
+`owner@staging.example.com`, dan development tidak punya jalur seed sama
 sekali — instance lokal seorang developer adalah apa pun yang dia ketik di
 setup wizard.
 

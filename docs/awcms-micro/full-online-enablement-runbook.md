@@ -1,7 +1,7 @@
 # Full-Online Feature Enablement Runbook (Turnstile / 2FA / SSO / Email)
 
 Operator runbook for switching on the full-online auth-hardening + email features on a
-production deployment (reference target: dinkes-prod / Coolify, `awcms-micro.ahlikoding.com`).
+production deployment (reference target: prod-host / Coolify, `awcms-micro.example.com`).
 
 **Everything here is already implemented and shipped** — Cloudflare Turnstile (Issue #588),
 TOTP 2FA (#589), Google OIDC login (#590), generic tenant SSO (#591), and the Mailketing email
@@ -85,7 +85,7 @@ are never trusted — you just lose bounce/complaint feedback. Full reference fo
 
 ## 3. Cloudflare Turnstile (bot/CAPTCHA on login/register/forgot/reset)
 
-Obtain keys: Cloudflare dashboard → **Turnstile** → add a widget for `awcms-micro.ahlikoding.com`
+Obtain keys: Cloudflare dashboard → **Turnstile** → add a widget for `awcms-micro.example.com`
 → copy the **Site Key** (public) and **Secret Key** (server-side).
 
 ```
@@ -118,7 +118,7 @@ Obtain credentials: Google Cloud Console → **APIs & Services → Credentials**
 (Web application). Authorized redirect URI **must** be:
 
 ```
-https://awcms-micro.ahlikoding.com/api/v1/auth/providers/google/callback
+https://awcms-micro.example.com/api/v1/auth/providers/google/callback
 ```
 
 ```
@@ -152,7 +152,7 @@ Obtain credentials: Mailketing account → API token + account id. Then:
 ```
 EMAIL_ENABLED=true
 EMAIL_PROVIDER=mailketing
-EMAIL_FROM_ADDRESS=no-reply@ahlikoding.com          # a sender you control/verified in Mailketing
+EMAIL_FROM_ADDRESS=no-reply@example.com          # a sender you control/verified in Mailketing
 EMAIL_FROM_NAME=AWCMS-Micro
 EMAIL_MAILKETING_ACCOUNT_ID=<mailketing account id>
 EMAIL_MAILKETING_API_TOKEN=<mailketing api token>   # secret
@@ -180,7 +180,7 @@ provider with `bun run email:provider:health`. Seed per-tenant default templates
    required var before it fails the container boot.
 3. Redeploy (mint token + deploy API, see [`deploy-coolify.md`](deploy-coolify.md)).
 4. Verify on the live edge:
-   - `curl -s https://awcms-micro.ahlikoding.com/login | grep -o cf-turnstile` (Turnstile rendering)
+   - `curl -s https://awcms-micro.example.com/login | grep -o cf-turnstile` (Turnstile rendering)
    - The Google button / SSO picker appear on `/login`.
    - `/admin/security` shows each gate's enabled+configured status.
    - Log in with a MFA-enrolled user end-to-end; send a test email and watch `email:dispatch`.
@@ -194,6 +194,6 @@ persist and reactivate when re-enabled (as long as the encryption keys are uncha
 ## 10. Backup layer 2 (offsite, related follow-up)
 
 Layer 1 (nightly on-box `pg_dump` to the sdb disk) is installed. For offsite DR, enable Coolify's
-native scheduled backup on the `awcms-micro` Postgres resource (`clgwm77eofuyz36vfj2jnse9`) with an
+native scheduled backup on the `awcms-micro` Postgres resource (`<resource-uuid>`) with an
 S3/R2 destination (a **private** bucket + credentials, not the public media bucket). See
 [`resilience-dr-verification.md`](resilience-dr-verification.md).

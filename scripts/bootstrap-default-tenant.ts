@@ -8,8 +8,8 @@
  * ## Why this exists
  *
  * An audit of the three live phases found them agreeing only by luck:
- * production had tenant `default` + `admin@ahlikoding.com`, staging had
- * `staging` + `owner@staging.ahlikoding.com`, and development had nothing
+ * production had tenant `default` + `admin@example.com`, staging had
+ * `staging` + `owner@staging.example.com`, and development had nothing
  * at all — there was no seed path, so a developer's local instance was
  * whatever they typed. The full-access part was never at risk (the
  * bootstrap grants the owner role EVERY row of `awcms_micro_permissions`,
@@ -131,7 +131,7 @@ if (import.meta.main) {
   const target: BootstrapTarget = {
     tenantCode: readFlag("tenant-code", "default"),
     tenantName: readFlag("tenant-name", "Default"),
-    ownerLogin: readFlag("owner-login", "admin@ahlikoding.com"),
+    ownerLogin: readFlag("owner-login", "admin@example.com"),
     ownerDisplayName: readFlag("owner-name", "Owner"),
     officeCode: readFlag("office-code", "hq"),
     officeName: readFlag("office-name", "Head Office")
