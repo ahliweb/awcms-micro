@@ -52,6 +52,66 @@ export function parseArgs(argv: string[]): QueryPlanCheckOptions {
   };
 }
 
+/**
+ * Makes the plan the budgets judge a function of the live fixture rows alone,
+ * not of how much residue earlier steps left in the tables or of whether
+ * autovacuum happened to run first.
+ *
+ * The least-privilege `awcms_micro_app` role this script runs as can neither
+ * VACUUM nor ANALYZE (it does not own the tables), and the fixture reset can
+ * only `DELETE`, which leaves dead space behind. Heap-bound plans are costed by
+ * page count, and the wide `awcms_micro_audit_events` rows interleave tenants,
+ * so on the bloated heap the same query planned as Seq Scan (cost 740 in CI,
+ * 1646 locally), Bitmap Heap Scan (171, 1584, 2642, 3688) or Index Only Scan,
+ * depending on autovacuum timing alone. `VACUUM (FULL, ANALYZE)` rewrites the
+ * heap compactly and refreshes statistics, after which the cost is identical
+ * run after run (554.2 for the reporting aggregate across three consecutive
+ * runs). FULL takes an ACCESS EXCLUSIVE lock, acceptable only because this
+ * path sits behind the non-production target guard.
+ *
+ * Opt-in: set `QUERY_PLAN_MAINTENANCE_DATABASE_URL` to a role that owns the
+ * tables (CI passes the migration owner). It is held to the same
+ * non-production guard as `DATABASE_URL`, used for exactly this one statement,
+ * and never for the budgeted queries, which keep running as the RLS-bound app
+ * role. Unset, the step is skipped and the budgets are judged on whatever
+ * statistics exist (the pre-existing behaviour).
+ */
+async function refreshPlannerStatistics(
+  confirmNonProduction: string | null
+): Promise<void> {
+  const maintenanceUrl = process.env.QUERY_PLAN_MAINTENANCE_DATABASE_URL;
+
+  if (!maintenanceUrl) {
+    console.log(
+      "performance-query-plan-check: QUERY_PLAN_MAINTENANCE_DATABASE_URL not set — skipping VACUUM (FULL, ANALYZE); plans reflect whatever statistics autovacuum has produced.\n"
+    );
+    return;
+  }
+
+  const authorization = authorizeDrDrill({
+    appEnv: process.env.APP_ENV,
+    databaseUrl: maintenanceUrl,
+    confirmNonProduction
+  });
+
+  if (!authorization.ok) {
+    throw new Error(
+      `performance-query-plan-check: maintenance URL BLOCKED — ${authorization.reason}`
+    );
+  }
+
+  const maintenance = new Bun.SQL(maintenanceUrl);
+
+  try {
+    await maintenance.unsafe("VACUUM (FULL, ANALYZE)");
+    console.log(
+      "performance-query-plan-check: VACUUM (FULL, ANALYZE) done as the maintenance role.\n"
+    );
+  } finally {
+    await maintenance.close();
+  }
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   const appEnv = process.env.APP_ENV;
@@ -106,6 +166,8 @@ async function main() {
   console.log(
     `performance-query-plan-check: seeded ${plan.tenants.length} tenants in ${seedSummary.durationMs.toFixed(0)}ms.\n`
   );
+
+  await refreshPlannerStatistics(options.confirmNonProduction);
 
   // A deterministic, non-noisy-neighbor tenant — representative of ordinary
   // per-tenant query volume rather than the deliberately skewed tenant.
