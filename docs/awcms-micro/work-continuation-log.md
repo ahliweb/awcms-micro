@@ -107,25 +107,25 @@ cache ke depan. Lewat Traefik: `http://` → 302, `https://` → MISS lalu HIT,
 
 **Sisa pekerjaan:**
 
-- ~~A record DNS `awcms-micro-staging.ahlikoding.com` → `192.42.84.46` (MCP
+- ~~A record DNS `awcms-micro-staging.example.com` → `<server-ip>` (MCP
   Cloudflare masih menunggu OAuth pengguna). Sampai DNS ada, Let's Encrypt
   belum bisa menerbitkan sertifikat — verifikasi internal memakai header
   `Host` dan `curl -k`~~ — **selesai 2026-07-25 sore.** Record dibuat via
-  Cloudflare API dari sesi lain (repo `serv-dinkesdocker`), dan sekaligus
+  Cloudflare API dari sesi lain (repo operasi server), dan sekaligus
   domain ini di-proxy Cloudflare (orange cloud). Traefik juga dipindah dari
   tantangan HTTP-01 ke **DNS-01 via Cloudflare** untuk resolver `letsencrypt`,
   jadi status proxy record tidak lagi memengaruhi penerbitan/renewal
   sertifikat. Sertifikat Let's Encrypt asli sudah terbit dan terverifikasi
   (bukan self-signed default Traefik). Detail:
-  `docs/12-cloudflare-proxy-dns01.md` di repo `serv-dinkesdocker`.
+  dokumen proxy/DNS-01 di repo operasi server.
 
   **Diverifikasi ulang dari sesi ini (12:41 UTC), rantai penuh:** DNS
   menjawab IP proxy Cloudflare (`104.21.11.201`/`172.67.167.66`); sertifikat
   **origin** di Traefik memang Let's Encrypt (`CN =
-awcms-micro-staging.ahlikoding.com`, berlaku sampai 23 Okt 2026); sertifikat
+awcms-micro-staging.example.com`, berlaku sampai 23 Okt 2026); sertifikat
   yang dilihat publik adalah milik Cloudflare (Google Trust Services,
-  `CN = ahlikoding.com`) — konsekuensi wajar record ter-proxy, bukan
-  kekeliruan. Permintaan publik ke `https://awcms-micro-staging.ahlikoding.com/`
+  `CN = example.com`) — konsekuensi wajar record ter-proxy, bukan
+  kekeliruan. Permintaan publik ke `https://awcms-micro-staging.example.com/`
   menembus Cloudflare → Traefik → **Varnish (`x-cache: HIT`)** → aplikasi, dan
   `cf-cache-status: DYNAMIC` mengonfirmasi Cloudflare **tidak** ikut menyimpan
   HTML-nya (karena `Cache-Control: public, max-age=0, must-revalidate`) —
@@ -185,7 +185,7 @@ blokirnya adalah ketiadaan target non-produksi.
 lama "nginx vhost + certbot butuh sudo" sudah usang):
 
 - App Coolify `a107y9000uz0t9cmgs18lzcv`, `APP_ENV=staging`, build `main` via
-  `Dockerfile.production`, domain `awcms-micro-staging.ahlikoding.com`.
+  `Dockerfile.production`, domain `awcms-micro-staging.example.com`.
 - DB `postgres:18.4` sendiri (`d437d850oei6v1s92dq5y3lf`), 80 migration, 131 tabel
   FORCE RLS, peran `awcms_micro_app` least-privilege sendiri.
 - **Isolasi disengaja**: secret sendiri (JWT, timing), **R2/email/sync semuanya OFF** —
@@ -213,7 +213,7 @@ Jalankan runner dengan **berbagi network namespace container DB** supaya host DS
 "production-like", dan meng-alias DB sebagai `postgres` di network `coolify` bersama akan
 bentrok dengan service alias aplikasi lain.
 
-**Blocker tersisa:** record DNS `awcms-micro-staging.ahlikoding.com` → `192.42.84.46`
+**Blocker tersisa:** record DNS `awcms-micro-staging.example.com` → `<server-ip>`
 (DNS-only). MCP Cloudflare API (`https://mcp.cloudflare.com/mcp`) sudah ditambahkan ke
 konfigurasi tapi **butuh OAuth interaktif** (`/mcp`) yang tidak bisa dijalankan dari sesi
 non-interaktif. Setelah record ada, TLS terbit otomatis lewat resolver `letsencrypt`

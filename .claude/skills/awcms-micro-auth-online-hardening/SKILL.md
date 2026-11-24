@@ -809,7 +809,7 @@ Fitur baru di atas epic #587-#593: **redesign layar auth** + **self-signup
 dengan approval admin** + **enkripsi param URL auth**. Semuanya **opt-in,
 backward-compatible** — tanpa env baru, perilaku publik tidak berubah
 (`/register` → 302 ke `/login`, reset link tetap plaintext `?token=&tenantId=`).
-Deployed ke dinkes-prod 2026-07-23 dalam keadaan DORMANT (flag belum di-set).
+Deployed ke prod-host 2026-07-23 dalam keadaan DORMANT (flag belum di-set).
 Migration **093** (`awcms_micro_registration_requests`).
 
 ### Sealed/encrypted auth URL params — `src/lib/security/secure-url-params.ts`

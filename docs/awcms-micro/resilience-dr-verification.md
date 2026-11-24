@@ -125,7 +125,7 @@ metrics are:
   failure), `pool-saturation`'s `backpressureLatencyMs` (bounded queueing
   under load).
 
-### Measured on live prod (dinkes-prod, 2026-07-24, Issue #294)
+### Measured on live prod (prod-host, 2026-07-24, Issue #294)
 
 A measured backup/restore drill (the `deploy/backup/restore-drill.sh` shape:
 backup → restore into a disposable target → verify) was run against the live
@@ -150,13 +150,13 @@ Findings:
 - **Scheduled backup — RESOLVED (verified live 2026-07-24).** The original
   drill found Coolify had **0 scheduled database backups** for this app's DB
   (via `ScheduledDatabaseBackup::all()->count()`), leaving RPO unbounded. A
-  **nightly logical backup is now installed on the dinkes-prod host** and was
-  re-verified live on 2026-07-24: admin1 crontab `30 2 * * *
-/home/admin1/backups/awcms-micro-backup.sh` — a daily `pg_dump | gzip` of the
-  live DB (resolved by resource uuid `clgwm77eofuyz36vfj2jnse9`, so it survives
-  redeploys) written to `/var/lib/docker/awcms-micro-db-backups` on the **sdb1**
+  **nightly logical backup is now installed on the prod-host host** and was
+  re-verified live on 2026-07-24: <ops-user> crontab `30 2 * * *
+$HOME/backups/awcms-micro-backup.sh` — a daily `pg_dump | gzip` of the
+  live DB (resolved by resource uuid `<resource-uuid>`, so it survives
+  redeploys) written to `<backup-dir>` on the secondary
   disk (2.7 T; the root disk is only 57 G, so the operator deliberately chose
-  sdb1 over Coolify-managed storage). Each run is integrity-gated
+  the secondary disk over Coolify-managed storage). Each run is integrity-gated
   (`gzip -t` + a `>1000` byte floor — a bad dump is deleted and the run exits
   non-zero) and **rotated at 14 days**. Verified present: 3 valid gzipped dumps
   (~92 KB each) in the target dir. **RPO is now bounded to ≤24 h** (worst case
@@ -171,7 +171,7 @@ Findings:
 -iter 200000`, passphrase at `~/backups/r2-backup-passphrase` on prod, chmod
   600 — **never** stored in the bucket) and pushed via a throwaway `rclone/rclone`
   container (creds in `~/backups/r2-db-backup.env`, chmod 600) to the private
-  bucket **`awcms-micro-backups`** under the **`nightly/`** prefix as
+  bucket **`<backup-bucket>`** under the **`nightly/`** prefix as
   `<dump>.sql.gz.enc`. Offsite retention is **30 days**, scoped to
   `nightly/*.sql.gz.enc` only — the bucket's pre-existing, unrelated
   `backups/db/*.sql.enc` history (a lapsed earlier scheme) is never touched. The
@@ -198,7 +198,7 @@ Findings:
   `APP_ENV=production` with **no override flag**, §Safety interlock), so the
   blocker was the absence of a non-production target, not the drills themselves.
   A staging instance now exists on the same Coolify host
-  (`awcms-micro-staging.ahlikoding.com`, `APP_ENV=staging`, its own
+  (`awcms-micro-staging.example.com`, `APP_ENV=staging`, its own
   `postgres:18.4`, its own secrets, R2/email/sync all off — see
   [`deploy-coolify.md`](deploy-coolify.md) §Instance staging).
   `bun run resilience:dr-drill -- --confirm-non-production=staging --full`

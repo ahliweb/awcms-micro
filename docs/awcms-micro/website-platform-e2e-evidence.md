@@ -155,7 +155,7 @@ and close each of these — with exact commands and evidence to capture — is i
 - **Deployment rehearsal** — Docker dev + `Dockerfile.production` + Coolify,
   internal PostgreSQL network, durable object-storage config, secrets handling,
   and Cloudflare/CDN/WAF guidance, executed end-to-end. (split issue: **#293**)
-  **Partial real-infra evidence LANDED** (dinkes-prod, `awcms-micro.ahlikoding.com`,
+  **Partial real-infra evidence LANDED** (prod-host, `awcms-micro.example.com`,
   2026-07-22/23 — see [`deploy-coolify.md`](deploy-coolify.md)): the production
   image **builds and boots** on Coolify (build-from-GitHub, commit-SHA-tagged,
   container reports healthy) against an **internal Coolify-network PostgreSQL**
@@ -164,7 +164,7 @@ and close each of these — with exact commands and evidence to capture — is i
   never left the box); durable **R2 object storage** is configured (bucket +
   custom domain); and the **live edge** is reachable (health `200`, TLS via
   Cloudflare). **Live-edge security verified 2026-07-24** (`curl -D` against
-  `https://awcms-micro.ahlikoding.com/`): TLS = Let's Encrypt (valid → Oct 21
+  `https://awcms-micro.example.com/`): TLS = Let's Encrypt (valid → Oct 21
   2026), HTTP/2, **HSTS** `max-age=31536000; includeSubDomains`, strict **CSP**
   (`default-src 'self'`, `object-src 'none'`, `base-uri 'none'`,
   `frame-ancestors 'none'`, `script-src` hash-pinned — no `unsafe-inline`),
@@ -176,9 +176,9 @@ and close each of these — with exact commands and evidence to capture — is i
   container). **SEO-discovery config gap — RESOLVED (re-verified live
   2026-07-25)**: the earlier finding (apex host served only the generic
   fallback `robots.txt`; `/sitemap.xml` + feeds `404`) no longer reproduces.
-  Tenant-by-host resolution now maps `awcms-micro.ahlikoding.com`:
+  Tenant-by-host resolution now maps `awcms-micro.example.com`:
   `robots.txt` is tenant-specific and advertises
-  `Sitemap: https://awcms-micro.ahlikoding.com/sitemap.xml`; `/sitemap.xml`
+  `Sitemap: https://awcms-micro.example.com/sitemap.xml`; `/sitemap.xml`
   returns `200` with a `<sitemapindex>` pointing at `/sitemap-1.xml`; and
   `/feed.xml`, `/atom.xml`, `/feed.json` all return `200` resolved to the
   tenant ("Default Tenant"). The child `<urlset>` is empty only because the
@@ -187,7 +187,7 @@ and close each of these — with exact commands and evidence to capture — is i
   object was written to the R2 media bucket through the app's own
   `Bun.S3Client` configuration (the same client
   `media-r2-client.ts` builds), fetched over the tenant's public media domain
-  `https://awcms-micro-r2.ahlikoding.com` (**HTTP/2 200**, `server: cloudflare`,
+  `https://awcms-micro-r2.example.com` (**HTTP/2 200**, `server: cloudflare`,
   stable `etag`), then the **application container was restarted**
   (`docker restart`, app back to `healthy`) and the object **re-fetched
   successfully — byte-identical, HTTP 200**. The container additionally has **no
@@ -270,7 +270,7 @@ DIIZINKAN`, 10 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14`
   object-storage-failure/cache-invalidation drills. (split issue: **#294**)
   **Measured restore drill LANDED 2026-07-24** (the
   `deploy/backup/restore-drill.sh` shape — backup → restore into a disposable
-  target → verify — run against the live dinkes-prod PG, restored into an
+  target → verify — run against the live prod-host PG, restored into an
   ISOLATED throwaway container on the coolify network, then discarded):
   `pg_dump -Fc` **backup
   ≈1.7 s / 708 KB**; **restore ≈6.3 s**; restored row counts (1 tenant / 0
@@ -280,15 +280,15 @@ DIIZINKAN`, 10 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14`
   `--no-owner --no-privileges` or pre-create the app roles. **Scheduled backup —
   RESOLVED (verified live 2026-07-24)**: the original drill found Coolify had
   **0 scheduled backups** (RPO unbounded); a **nightly host cron is now installed
-  and verified** — admin1 `30 2 * * * /home/admin1/backups/awcms-micro-backup.sh`
-  (daily `pg_dump | gzip` → sdb1 `/var/lib/docker/awcms-micro-db-backups`,
+  and verified** — <ops-user> `30 2 * * * $HOME/backups/awcms-micro-backup.sh`
+  (daily `pg_dump | gzip` → the secondary disk `<backup-dir>`,
   DB resolved by resource uuid so it survives redeploys, `gzip -t` + `>1000` byte
   integrity gate, **14-day retention**; 3 valid dumps present). **RPO now bounded
   to ≤24 h.** A Coolify-native backup was deliberately NOT added (would duplicate
   this + must not use the 57 G root disk). **Offsite (layer 2) — DONE (verified
   live 2026-07-24)**: the nightly script now also client-side **encrypts** each
   dump (`openssl aes-256-cbc/pbkdf2`, passphrase chmod 600 on prod, never in the
-  bucket) and pushes it to the private Cloudflare R2 bucket `awcms-micro-backups`
+  bucket) and pushes it to the private Cloudflare R2 bucket `<backup-bucket>`
   under `nightly/*.sql.gz.enc` (throwaway `rclone` container; 30-day offsite
   retention scoped to `nightly/` only — the bucket's unrelated historical
   `backups/db/*.enc` is untouched). Restore-proven end-to-end (R2 → decrypt →
@@ -305,7 +305,7 @@ DIIZINKAN`, 10 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14`
   [`resilience-dr-verification.md`](resilience-dr-verification.md) §Safety
   interlock), so chaos injection cannot legitimately run against the production
   target — it needed a non-production instance, which now exists
-  (`awcms-micro-staging.ahlikoding.com`, own `postgres:18.4`, own secrets,
+  (`awcms-micro-staging.example.com`, own `postgres:18.4`, own secrets,
   R2/email/sync off; see [`deploy-coolify.md`](deploy-coolify.md) §Instance
   staging). `bun run resilience:dr-drill -- --confirm-non-production=staging
 --full` returns **`overall = pass`, 6/6**: SSO-discovery outage fails fast in
@@ -339,7 +339,7 @@ DIIZINKAN`, 10 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14`
   page". Measured on the dev server 2026-07-25: `/` → LCP 44 ms, CLS 0,
   **INP 24 ms**, 4 interactions; `/newsletter/demo` → LCP 48 ms, CLS 0,
   **INP 24 ms**, 4 interactions. **Also measured over the real network/CDN
-  against the deployed instance** `https://awcms-micro.ahlikoding.com`
+  against the deployed instance** `https://awcms-micro.example.com`
   (2026-07-25, through Cloudflare), with the gate run unmodified against the
   live edge: `/` → LCP **652 ms**, CLS **0**, INP **0**, 4 interactions;
   `/newsletter/demo` → LCP **140 ms**, CLS **0**, INP **40 ms**, 4
@@ -391,7 +391,7 @@ DIIZINKAN`, 10 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14`
   AND mobile** — closing "axe over the rendered content-reading templates
   (`/news`, `/blog` article pages)". **Executed against the DEPLOYED INSTANCE
   (2026-07-25)**: `public-a11y-smoke.e2e.ts` + `public-link-crawl.e2e.ts` were
-  run unmodified with `E2E_BASE_URL=https://awcms-micro.ahlikoding.com` —
+  run unmodified with `E2E_BASE_URL=https://awcms-micro.example.com` —
   **11/11 passed** (axe EN + ID × desktop + mobile over the live homepage,
   `/newsletter/demo` and `/comments/demo`; live rendered-link crawl green). Both
   specs are pure Playwright with no database import, so this was read-only
@@ -412,7 +412,7 @@ DIIZINKAN`, 10 of 10 stages PASS.** Run from a throwaway `oven/bun:1.3.14`
   negative control injecting
   `*, *:focus { outline: none !important; box-shadow: none !important }` makes
   the spec FAIL. Run unmodified against the deployed instance
-  (`E2E_BASE_URL=https://awcms-micro.ahlikoding.com`): **5/5 PASS**, EN + ID,
+  (`E2E_BASE_URL=https://awcms-micro.example.com`): **5/5 PASS**, EN + ID,
   read-only traffic.
   **Discovery/empty/error-state axe LANDED (2026-07-26)**:
   `public-discovery-a11y.e2e.ts` scans the surfaces between the homepage and
@@ -536,7 +536,7 @@ repo>'`. Following the runbook would therefore have **wiped the deployment
   object still served `HTTP/2 200` with `cf-cache-status: DYNAMIC` (so not a
   CDN artifact). The probe object was removed by hand.
   **RESOLVED on the target 2026-07-25**: a daily reconcile job is now scheduled
-  (`45 3 * * * /home/admin1/jobs/awcms-micro-media-reconcile.sh`, after the
+  (`45 3 * * * /home/<ops-user>/jobs/awcms-micro-media-reconcile.sh`, after the
   02:30 backup), verified running for real (`tenants=1`, not skipped). Two
   things had to be fixed along the way, both now written up in
   [`deploy-coolify.md`](deploy-coolify.md) §Job terjadwal:
@@ -596,7 +596,7 @@ repo>'`. Following the runbook would therefore have **wiped the deployment
   data-faithful → RPO 0 at dump instant). STILL DEFERRED: field-style CWV +
   load/soak at representative volume, and object-storage DR. **Operational gap
   now RESOLVED (verified live 2026-07-24)**: prod has a **nightly host cron
-  backup** (`30 2 * * *`, sdb1, 14-day retention, integrity-gated) → RPO bounded
+  backup** (`30 2 * * *`, the secondary disk, 14-day retention, integrity-gated) → RPO bounded
   to ≤24 h, **plus an encrypted offsite copy to Cloudflare R2**
   (`awcms-micro-backups/nightly/*.sql.gz.enc`, restore-proven) — see
   [`resilience-dr-verification.md`](resilience-dr-verification.md) §RTO/RPO.

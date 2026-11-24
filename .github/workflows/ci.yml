@@ -269,7 +269,15 @@ jobs:
         env:
           APP_ENV: test
           DATABASE_URL: "postgres://awcms_micro_app:ci-performance-app-role-password@localhost:5432/awcms-micro"
-        run: bun run performance:query-plan:check -- --confirm-non-production=test
+        # The budgeted queries run as the RLS-bound app role (DATABASE_URL
+        # above). The migration owner is passed ONLY so the script can run one
+        # VACUUM (FULL, ANALYZE) after seeding: the app role cannot, and without it
+        # the plan flips on autovacuum timing alone (see the script's header
+        # on refreshPlannerStatistics). Assembled at runtime from POSTGRES_*,
+        # never a literal URL, for the same scanner reason as above.
+        run: |
+          export QUERY_PLAN_MAINTENANCE_DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}"
+          bun run performance:query-plan:check -- --confirm-non-production=test
 
       - name: Build Astro foundation
         run: bun run build

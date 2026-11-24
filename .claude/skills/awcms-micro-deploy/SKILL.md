@@ -64,8 +64,8 @@ bun run production:preflight      # orkestrasi migrate -> api:spec:check -> test
 
 `bootstrap:default-tenant` menggantikan "buka setup wizard lalu ketik apa
 saja". Audit tiga fase (2026-07-26) menemukan mereka cocok hanya karena
-kebetulan — production `default`/`admin@ahlikoding.com`, staging
-`staging`/`owner@staging.ahlikoding.com`, development tidak ada seed sama
+kebetulan — production `default`/`admin@example.com`, staging
+`staging`/`owner@staging.example.com`, development tidak ada seed sama
 sekali. Perintah ini idempoten; tanpa `--repair` ia hanya melapor, dan kode
 tenant yang berbeda **tidak pernah** ditulis ulang karena muncul di URL
 publik `/blog/{tenantCode}` (ADR-0009). Password hanya dari
@@ -116,8 +116,8 @@ Kalau task ini butuh token API Coolify/Cloudflare atau kredensial server
 secara interaktif (dijalankan agent/operator dalam satu sesi kerja, bukan
 job cron), ambil lewat `agent-cred get <service> <field>` (isi dulu dengan
 `agent-cred set <service>` bila belum ada) — jangan `read -s` ad-hoc atau
-credential inline baru. TTL cache 3 jam. Detail: repo `personal-coding`
-`docs/sop-agent-cred-credential-cache.md`. Job cron/systemd (lihat section
+credential inline baru. TTL cache 3 jam. Detail: standar lintas-portofolio
+internal. Job cron/systemd (lihat section
 di bawah) tetap pakai env var/secret file seperti biasa.
 
 ## Job terjadwal: `docker exec … bun run <job>` TIDAK bisa dipakai

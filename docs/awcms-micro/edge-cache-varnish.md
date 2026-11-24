@@ -225,7 +225,7 @@ di-skip agar `bun test` lokal hijau.
 
 ### Bukti lapangan pada instance staging nyata (2026-07-25)
 
-Diukur pada instance staging `awcms-micro-staging.ahlikoding.com` — aplikasi
+Diukur pada instance staging `awcms-micro-staging.example.com` — aplikasi
 sungguhan, PostgreSQL 18.4 sungguhan, satu tenant terkonfigurasi — dengan
 Varnish 7.7.3 di depannya. Setiap baris 20 permintaan; `db_xact` adalah delta
 `pg_stat_database.xact_commit` untuk database staging, jadi ia menghitung
